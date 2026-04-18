@@ -41,5 +41,8 @@ jobs:
         npm install
         npm run build
 
+    - name: Run Migrations and Seeders
+      run: php artisan migrate --seed
+
     - name: Run Tests
       run: php artisan test
