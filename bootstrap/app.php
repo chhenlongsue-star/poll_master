@@ -10,11 +10,16 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware): void {
+    ->withMiddleware(function (Middleware $middleware) {
+        // 1. Trust all proxies (Required for Render/Cloud Hosting)
+        // This ensures HTTPS is detected correctly and login sessions work.
+        $middleware->trustProxies(at: '*');
+
+        // 2. Register your custom Role Middleware
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
+    ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
