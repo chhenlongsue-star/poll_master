@@ -18,8 +18,14 @@
                     </x-nav-link>
 
                     @if(in_array(Auth::user()->role, ['admin', 'sub_admin']))
-                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')" class="text-indigo-600 font-bold">
+                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" class="text-indigo-600 font-bold">
                             {{ __('Admin Panel') }}
+                        </x-nav-link>
+                    @endif
+
+                    @if(Auth::user()->role === 'admin')
+                        <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
+                            {{ __('Manage Categories') }}
                         </x-nav-link>
                     @endif
                 </div>
@@ -83,6 +89,12 @@
             @if(in_array(Auth::user()->role, ['admin', 'sub_admin']))
                 <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" class="text-indigo-600 font-bold">
                     {{ __('Admin Panel') }}
+                </x-responsive-nav-link>
+            @endif
+
+            @if(Auth::user()->role === 'admin')
+                <x-responsive-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
+                    {{ __('Manage Categories') }}
                 </x-responsive-nav-link>
             @endif
         </div>

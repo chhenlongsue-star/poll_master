@@ -3,6 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PollController;
+use App\Http\Controllers\CategoryController; // Added for Categories
+use App\Http\Controllers\Auth\LoginController; // Added for Gmail Login
 use App\Models\Poll;
 use Illuminate\Support\Facades\Route;
 
@@ -12,7 +14,6 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 Route::get('/', function () {
-    // Fetch the top 3 polls with the most votes for the welcome page
     $trendingPolls = Poll::with(['category', 'options'])
         ->withCount('votes')
         ->where('is_active', true)
@@ -22,6 +23,14 @@ Route::get('/', function () {
 
     return view('welcome', compact('trendingPolls'));
 });
+
+/*
+|--------------------------------------------------------------------------
+| Google Socialite Routes
+|--------------------------------------------------------------------------
+*/
+Route::get('auth/google', [LoginController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('auth/google/callback', [LoginController::class, 'handleGoogleCallback']);
 
 /*
 |--------------------------------------------------------------------------
@@ -45,7 +54,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{poll}', [PollController::class, 'show'])->name('show');
         Route::post('/{poll}/vote', [PollController::class, 'vote'])->name('vote');
         
-        // Edit/Update/Delete
         Route::get('/{poll}/edit', [PollController::class, 'edit'])->name('edit');
         Route::put('/{poll}', [PollController::class, 'update'])->name('update');
         Route::delete('/{poll}', [PollController::class, 'destroy'])->name('destroy');
@@ -59,12 +67,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 */
 Route::middleware(['auth', 'role:admin,sub_admin'])->prefix('admin')->name('admin.')->group(function () {
     
-    // Admin Dashboard (Statistics & Charts)
+    // Admin Dashboard
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+
+    // Category Management (Admins/Sub-Admins can manage tags for polls)
+    Route::resource('categories', CategoryController::class);
 
     // --- EXCLUSIVE MAIN ADMIN ONLY (User Management) ---
     Route::middleware(['role:admin'])->group(function () {
-        // Changed from 'promote' to 'updateRole' to handle sub_admin, user, and admin
         Route::post('/users/{user}/update-role', [AdminController::class, 'updateRole'])->name('users.updateRole');
         Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
     });

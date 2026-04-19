@@ -22,6 +22,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'google_id', // Added for Gmail Login
+        'role',      // Added for Admin/User roles
     ];
 
     /**
@@ -45,5 +47,21 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Helper to check if user is an admin
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Relationship: A user can have many votes
+     */
+    public function votes()
+    {
+        return $this->hasMany(Vote::class);
     }
 }
