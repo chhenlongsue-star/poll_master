@@ -16,7 +16,8 @@ class LoginController extends Controller
      */
     public function redirectToGoogle()
     {
-        return Socialite::driver('google')->redirect();
+        // Added stateless() to ensure the session doesn't conflict on Render
+        return Socialite::driver('google')->stateless()->redirect();
     }
 
     /**
@@ -25,7 +26,8 @@ class LoginController extends Controller
     public function handleGoogleCallback()
     {
         try {
-            $googleUser = Socialite::driver('google')->user();
+            // Added stateless() here to match the redirect
+            $googleUser = Socialite::driver('google')->stateless()->user();
             
             // 1. Check if a user with this google_id already exists
             $user = User::where('google_id', $googleUser->id)->first();
@@ -43,17 +45,20 @@ class LoginController extends Controller
                         'name' => $googleUser->name,
                         'email' => $googleUser->email,
                         'google_id' => $googleUser->id,
-                        'password' => Hash::make(Str::random(24)), // Random password for security
+                        'password' => Hash::make(Str::random(24)), 
                         'role' => 'user', 
                     ]);
                 }
             }
 
-            Auth::login($user);
+            // Manually log the user in
+            Auth::login($user, true);
 
-            return redirect()->intended('dashboard');
+            // Redirect to dashboard
+            return redirect()->route('dashboard');
 
         } catch (\Exception $e) {
+            // Log the error if needed for debugging
             return redirect('/login')->with('error', 'Google sign-in failed. Please try again.');
         }
     }

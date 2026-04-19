@@ -3,8 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PollController;
-use App\Http\Controllers\CategoryController; // Added for Categories
-use App\Http\Controllers\Auth\LoginController; // Added for Gmail Login
+use App\Http\Controllers\CategoryController; 
+use App\Http\Controllers\Auth\LoginController as GoogleController; // Renamed to avoid clash
 use App\Models\Poll;
 use Illuminate\Support\Facades\Route;
 
@@ -29,8 +29,9 @@ Route::get('/', function () {
 | Google Socialite Routes
 |--------------------------------------------------------------------------
 */
-Route::get('auth/google', [LoginController::class, 'redirectToGoogle'])->name('auth.google');
-Route::get('auth/google/callback', [LoginController::class, 'handleGoogleCallback']);
+// Using GoogleController alias so it doesn't break Breeze login
+Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
 /*
 |--------------------------------------------------------------------------
@@ -70,7 +71,7 @@ Route::middleware(['auth', 'role:admin,sub_admin'])->prefix('admin')->name('admi
     // Admin Dashboard
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
-    // Category Management (Admins/Sub-Admins can manage tags for polls)
+    // Category Management
     Route::resource('categories', CategoryController::class);
 
     // --- EXCLUSIVE MAIN ADMIN ONLY (User Management) ---
@@ -80,4 +81,5 @@ Route::middleware(['auth', 'role:admin,sub_admin'])->prefix('admin')->name('admi
     });
 });
 
+// This loads the standard Breeze login/register routes
 require __DIR__.'/auth.php';

@@ -11,11 +11,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // 1. Trust all proxies (Required for Render/Cloud Hosting)
-        // This ensures HTTPS is detected correctly and login sessions work.
+        // 1. Trust all proxies (Required for Render)
+        // This stops the "flash and redirect" by letting Laravel know the site is secure.
         $middleware->trustProxies(at: '*');
 
-        // 2. Register your custom Role Middleware
+        // 2. Add this to ensure HTTPS is enforced on all redirects
+        // This is the missing piece that prevents the redirect back to a "broken" login.
+        $middleware->trustProxies(headers: \Illuminate\Http\Request::HEADER_X_FORWARDED_AWS_ELB);
+
+        // 3. Register your custom Role Middleware
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
