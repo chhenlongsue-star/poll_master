@@ -16,7 +16,7 @@ class GoogleAuthController extends Controller
      */
     public function redirectToGoogle()
     {
-        // Added stateless() to ensure the session doesn't conflict on Render
+        // stateless() is critical for cloud hosting like Render to avoid session mismatches
         return Socialite::driver('google')->stateless()->redirect();
     }
 
@@ -26,40 +26,40 @@ class GoogleAuthController extends Controller
     public function handleGoogleCallback()
     {
         try {
-            // Added stateless() here to match the redirect
             $googleUser = Socialite::driver('google')->stateless()->user();
             
-            // 1. Check if a user with this google_id already exists
-            $user = User::where('google_id', $googleUser->id)->first();
+            // Search for user by google_id OR email
+            $user = User::where('google_id', $googleUser->id)
+                        ->orWhere('email', $googleUser->email)
+                        ->first();
 
-            if (!$user) {
-                // 2. If not, check if a user with this email exists (to link accounts)
-                $user = User::where('email', $googleUser->email)->first();
-
-                if ($user) {
-                    // Update existing user with google_id
-                    $user->update(['google_id' => $googleUser->id]);
-                } else {
-                    // 3. Create a brand new user
-                    $user = User::create([
-                        'name' => $googleUser->name,
-                        'email' => $googleUser->email,
-                        'google_id' => $googleUser->id,
-                        'password' => Hash::make(Str::random(24)), 
-                        'role' => 'user', 
-                    ]);
-                }
+            if ($user) {
+                // Update user in case they didn't have a google_id before
+                $user->update([
+                    'google_id' => $googleUser->id,
+                ]);
+            } else {
+                // Create the user if they don't exist
+                $user = User::create([
+                    'name' => $googleUser->name,
+                    'email' => $googleUser->email,
+                    'google_id' => $googleUser->id,
+                    'password' => Hash::make(Str::random(24)), 
+                    'role' => 'user', 
+                ]);
             }
 
-            // Manually log the user in
+            // This is the most important part!
             Auth::login($user, true);
 
-            // Redirect to dashboard
-            return redirect()->route('dashboard');
+            // Force a session save before redirecting
+            request()->session()->regenerate();
+
+            return redirect()->intended('/dashboard');
 
         } catch (\Exception $e) {
-            // Log the error if needed for debugging
-            return redirect('/login')->with('error', 'Google sign-in failed. Please try again.');
+            // This will help you see the error if it fails again
+            return redirect('/login')->with('error', 'Google sign-in failed: ' . $e->getMessage());
         }
     }
 }
