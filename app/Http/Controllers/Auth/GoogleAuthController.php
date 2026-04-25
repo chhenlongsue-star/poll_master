@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
 
-class LoginController extends Controller
+class GoogleAuthController extends Controller
 {
     /**
      * Redirect the user to the Google authentication page.
