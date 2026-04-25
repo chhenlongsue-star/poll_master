@@ -35,12 +35,23 @@
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div class="flex flex-col items-end">
-                                <div>{{ Auth::user()->name }}</div>
-                                <div class="text-[10px] uppercase text-indigo-500 font-bold">{{ Auth::user()->role }}</div>
+                            
+                            <div class="me-3">
+                                @if(Auth::user()->avatar)
+                                    <img class="h-10 w-10 rounded-full object-cover border-2 border-indigo-500" src="{{ Auth::user()->avatar }}" alt="{{ Auth::user()->name }}" />
+                                @else
+                                    <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold border-2 border-indigo-500">
+                                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                                    </div>
+                                @endif
                             </div>
 
-                            <div class="ms-1">
+                            <div class="flex flex-col items-start">
+                                <div class="font-bold text-gray-800">{{ Auth::user()->name }}</div>
+                                <div class="text-[10px] uppercase text-indigo-500 font-extrabold tracking-wider">{{ Auth::user()->role }}</div>
+                            </div>
+
+                            <div class="ms-2">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                 </svg>
@@ -91,18 +102,24 @@
                     {{ __('Admin Panel') }}
                 </x-responsive-nav-link>
             @endif
-
-            @if(Auth::user()->role === 'admin')
-                <x-responsive-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
-                    {{ __('Manage Categories') }}
-                </x-responsive-nav-link>
-            @endif
         </div>
 
         <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }} ({{ Auth::user()->role }})</div>
+            <div class="flex items-center px-4">
+                <div class="shrink-0 me-3">
+                    @if(Auth::user()->avatar)
+                        <img class="h-10 w-10 rounded-full object-cover" src="{{ Auth::user()->avatar }}" alt="{{ Auth::user()->name }}" />
+                    @else
+                        <div class="h-10 w-10 rounded-full bg-indigo-500 flex items-center justify-center text-white">
+                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                        </div>
+                    @endif
+                </div>
+
+                <div>
+                    <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
+                    <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                </div>
             </div>
 
             <div class="mt-3 space-y-1">
