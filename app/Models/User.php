@@ -25,6 +25,7 @@ class User extends Authenticatable
         'google_id', // Added for Gmail Login
         'avatar',    // Added for profile pictures
         'role',      // Added for Admin/User roles
+        'last_seen_at', // Added for tracking user activity
     ];
 
     /**
@@ -47,6 +48,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_seen_at' => 'datetime',
         ];
     }
 
