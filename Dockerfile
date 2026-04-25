@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
+    libpq-dev \    
     zip \
     unzip \
     nodejs \
@@ -16,7 +17,8 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+# NOTE: Added pdo_pgsql here
+RUN docker-php-ext-install pdo pdo_pgsql pdo_mysql mbstring exif pcntl bcmath gd
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -28,23 +30,21 @@ WORKDIR /var/www
 COPY . .
 
 # Install dependencies
-RUN composer install --no-dev --optimize-autoloader
+# Using --no-scripts to prevent errors during build phase
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 RUN npm install && npm run build
 
-# --- DATABASE AUTOMATION STEPS ---
-# 1. Ensure the database directory exists
-# 2. Create an empty SQLite file so Laravel doesn't crash
-# 3. Give full permissions so the web server can write to the database
-RUN mkdir -p database && \
-    touch database/database.sqlite && \
-    chmod -R 777 database storage
+# Set permissions for Laravel
+RUN chmod -R 775 storage bootstrap/cache && \
+    chown -R www-data:www-data /var/www
 
 # Expose port
 EXPOSE 80
 
-# The CMD now runs migrations and seeds before starting the server
-# --force is required to run migrations in production mode
-CMD php artisan migrate --force && \
-    php artisan db:seed --force && \
+# --- START COMMAND ---
+# 1. Clear old config (very important so it sees Neon)
+# 2. Run migrations
+# 3. Start the server
+CMD php artisan config:clear && \
+    php artisan migrate --force && \
     php artisan serve --host=0.0.0.0 --port=80
-CMD php artisan migrate:fresh --seed --force && php artisan serve --host=0.0.0.0 --port=80
