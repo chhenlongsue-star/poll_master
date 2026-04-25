@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str; // IMPORTANT: Need this for the slug
+use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
@@ -26,13 +26,38 @@ class CategoryController extends Controller
             'name' => 'required|unique:categories,name|max:255',
         ]);
 
-        // Str::slug() converts "Entertainment News" into "entertainment-news"
         Category::create([
             'name' => $request->name,
             'slug' => Str::slug($request->name), 
         ]);
 
         return redirect()->route('admin.categories.index')->with('success', 'Category created!');
+    }
+
+    /**
+     * Show the form for editing the specified category.
+     */
+    public function edit(Category $category)
+    {
+        return view('admin.categories.edit', compact('category'));
+    }
+
+    /**
+     * Update the specified category in storage.
+     */
+    public function update(Request $request, Category $category)
+    {
+        $request->validate([
+            // Unique check ignores the current category ID
+            'name' => 'required|max:255|unique:categories,name,' . $category->id,
+        ]);
+
+        $category->update([
+            'name' => $request->name,
+            'slug' => Str::slug($request->name),
+        ]);
+
+        return redirect()->route('admin.categories.index')->with('success', 'Category updated!');
     }
 
     /**

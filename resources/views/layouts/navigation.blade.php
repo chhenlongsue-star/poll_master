@@ -17,15 +17,15 @@
                         {{ __('Create Poll') }}
                     </x-nav-link>
 
-                    @if(in_array(Auth::user()->role, ['admin', 'sub_admin']))
-                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" class="text-indigo-600 font-bold">
-                            {{ __('Admin Panel') }}
-                        </x-nav-link>
-                    @endif
-
                     @if(Auth::user()->role === 'admin')
                         <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
                             {{ __('Manage Categories') }}
+                        </x-nav-link>
+                    @endif
+
+                    @if(in_array(Auth::user()->role, ['admin', 'sub_admin']))
+                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" class="text-indigo-600 font-bold">
+                            {{ __('Admin Panel') }}
                         </x-nav-link>
                     @endif
                 </div>
@@ -46,7 +46,7 @@
                                 @endif
                             </div>
 
-                            <div class="flex flex-col items-start">
+                            <div class="flex flex-col items-start text-left">
                                 <div class="font-bold text-gray-800">{{ Auth::user()->name }}</div>
                                 <div class="text-[10px] uppercase text-indigo-500 font-extrabold tracking-wider">{{ Auth::user()->role }}</div>
                             </div>
@@ -97,6 +97,12 @@
                 {{ __('Create Poll') }}
             </x-responsive-nav-link>
 
+            @if(Auth::user()->role === 'admin')
+                <x-responsive-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
+                    {{ __('Manage Categories') }}
+                </x-responsive-nav-link>
+            @endif
+
             @if(in_array(Auth::user()->role, ['admin', 'sub_admin']))
                 <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" class="text-indigo-600 font-bold">
                     {{ __('Admin Panel') }}
@@ -110,7 +116,7 @@
                     @if(Auth::user()->avatar)
                         <img class="h-10 w-10 rounded-full object-cover" src="{{ Auth::user()->avatar }}" alt="{{ Auth::user()->name }}" />
                     @else
-                        <div class="h-10 w-10 rounded-full bg-indigo-500 flex items-center justify-center text-white">
+                        <div class="h-10 w-10 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold">
                             {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                         </div>
                     @endif
@@ -118,7 +124,7 @@
 
                 <div>
                     <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                    <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                    <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }} ({{ Auth::user()->role }})</div>
                 </div>
             </div>
 
