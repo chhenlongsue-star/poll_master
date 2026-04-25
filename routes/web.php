@@ -4,7 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PollController;
 use App\Http\Controllers\CategoryController; 
-use App\Http\Controllers\Auth\LoginController as GoogleController; // Renamed to avoid clash
+use App\Http\Controllers\Auth\GoogleAuthController as GoogleAuth; 
 use App\Models\Poll;
 use Illuminate\Support\Facades\Route;
 
@@ -29,9 +29,9 @@ Route::get('/', function () {
 | Google Socialite Routes
 |--------------------------------------------------------------------------
 */
-// Using GoogleController alias so it doesn't break Breeze login
-Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
-Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+// Using GoogleAuthController alias so it doesn't break Breeze login
+Route::get('auth/google', [GoogleAuth::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('auth/google/callback', [GoogleAuth::class, 'handleGoogleCallback']);
 
 /*
 |--------------------------------------------------------------------------
