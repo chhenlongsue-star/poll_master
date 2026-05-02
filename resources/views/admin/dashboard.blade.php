@@ -14,6 +14,7 @@
                 </div>
             @endif
             
+            <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
                 <div class="bg-white p-6 rounded-lg shadow border-b-4 border-blue-500">
                     <p class="text-gray-500 text-sm font-semibold uppercase">Total Users</p>
@@ -33,13 +34,15 @@
                 </div>
             </div>
 
+            <!-- Chart -->
             <div class="bg-white p-6 rounded-lg shadow mb-8">
                 <h3 class="text-lg font-bold mb-4 text-gray-700">Voting Activity (Last 7 Days)</h3>
                 <canvas id="voteChart" height="100"></canvas>
             </div>
 
+            <!-- User Management Table -->
             <div class="bg-white shadow rounded-lg overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100">
+                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
                     <h3 class="text-lg font-bold text-gray-700">User Management</h3>
                 </div>
                 <table class="min-w-full leading-normal">
@@ -55,7 +58,14 @@
                         <tr class="hover:bg-gray-50 transition">
                             <td class="px-5 py-5 border-b bg-white text-sm">
                                 <div class="flex flex-col">
-                                    <span class="text-gray-900 font-semibold">{{ $user->name }}</span>
+                                    <div class="flex items-center">
+                                        <span class="text-gray-900 font-semibold">{{ $user->name }}</span>
+                                        @if(!$user->is_active)
+                                            <span class="ml-2 px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-red-100 text-red-600 border border-red-200">
+                                                Banned
+                                            </span>
+                                        @endif
+                                    </div>
                                     <span class="text-gray-500 text-xs">{{ $user->email }}</span>
                                 </div>
                             </td>
@@ -70,24 +80,34 @@
                                         </select>
                                     </form>
                                 @else
-                                    <span class="px-2 py-1 rounded bg-red-100 text-red-700 text-xs font-bold uppercase">
+                                    <span class="px-2 py-1 rounded bg-blue-100 text-blue-700 text-[10px] font-bold uppercase">
                                         CURRENT ADMIN
                                     </span>
                                 @endif
                             </td>
                             <td class="px-5 py-5 border-b bg-white text-sm text-right">
-                                @if($user->role !== 'admin' || \App\Models\User::where('role', 'admin')->count() > 1)                                    @if(Auth::id() !== $user->id)
-                                    <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?');" class="inline">
-                                        @csrf @method('DELETE')
-                                        <button class="text-red-600 hover:text-red-900 font-medium text-xs flex items-center justify-end ml-auto">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                            Delete
-                                        </button>
-                                    </form>
+                                <div class="flex items-center justify-end space-x-4">
+                                    @if(Auth::id() !== $user->id)
+                                        <!-- Ban/Enable Toggle -->
+                                        <form action="{{ route('admin.users.toggle-status', $user) }}" method="POST" class="inline">
+                                            @csrf @method('PATCH')
+                                            <button type="submit" class="text-xs font-bold uppercase tracking-wider {{ $user->is_active ? 'text-orange-500 hover:text-orange-700' : 'text-green-500 hover:text-green-700' }}">
+                                                {{ $user->is_active ? 'Disable' : 'Enable' }}
+                                            </button>
+                                        </form>
+
+                                        <!-- Delete Button -->
+                                        <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Are you sure? This cannot be undone.');" class="inline">
+                                            @csrf @method('DELETE')
+                                            <button class="text-red-600 hover:text-red-900 font-medium text-xs flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                                Delete
+                                            </button>
+                                        </form>
                                     @endif
-                                @endif
+                                </div>
                             </td>
                         </tr>
                         @endforeach
@@ -97,7 +117,6 @@
                     {{ $users->links() }}
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -122,10 +141,7 @@
             options: {
                 responsive: true,
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { stepSize: 1 }
-                    }
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
                 }
             }
         });
