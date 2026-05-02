@@ -44,9 +44,9 @@
                                 Create interactive polls, share them with your community, and visualize results in real-time. Whether it's for school projects or quick decisions, Poll Master has you covered.
                             </p>
                             <div class="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left">
-                                <a href="{{ route('register') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 transition">
+                                {{-- <a href="{{ route('register') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 transition">
                                     Get Started for Free
-                                </a>
+                                </a> --}}
                             </div>
                         </div>
                         <div class="mt-12 relative sm:max-w-lg sm:mx-auto lg:mt-0 lg:max-w-none lg:mx-0 lg:col-span-6 lg:flex lg:items-center">
