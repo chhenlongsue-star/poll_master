@@ -185,4 +185,13 @@ class PollController extends Controller
 
         return redirect()->route('dashboard')->with('success', 'Poll has been removed successfully.');
     }
+
+    public function myContent()
+{
+    $user = auth()->user();
+    $myPolls = $user->polls()->latest()->get(); // Polls they created
+    $myVotes = $user->votes()->with('poll')->latest()->get(); // Polls they voted on
+
+    return view('polls.my-content', compact('myPolls', 'myVotes'));
+}
 }

@@ -7,6 +7,7 @@ use App\Models\Poll;
 use App\Models\Vote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
@@ -17,8 +18,8 @@ class AdminController extends Controller
         $totalVotes = Vote::count();
         $adminPollsCount = Poll::where('type', 'admin')->count();
         
-        // Active Users Logic (Users who were active in the last 5 minutes)
-        $activeUsersCount = User::where('updated_at', '>=', now()->subMinutes(5))->count();
+        // Active Users Logic (Using the last_seen_at column from our middleware)
+        $activeUsersCount = User::where('last_seen_at', '>=', now()->subMinutes(5))->count();
 
         // Data for Voting Graphic (Last 7 days)
         $votingData = Vote::select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as aggregate'))
@@ -41,52 +42,50 @@ class AdminController extends Controller
     }
 
     /**
-     * Update user role (Promote/Demote)
-     * Handles User, Sub-Admin, and Admin roles
+     * Toggle User Status (Ban/Enable)
      */
+    public function toggleStatus(User $user)
+    {
+        if (auth()->id() === $user->id) {
+            return back()->with('error', 'You cannot ban yourself.');
+        }
+
+        // Assuming you added the 'is_active' or 'is_banned' column
+        $user->update([
+            'is_active' => !$user->is_active 
+        ]);
+
+        $status = $user->is_active ? 'enabled' : 'disabled';
+        return back()->with('success', "User account has been {$status}.");
+    }
+
     public function updateRole(Request $request, User $user)
     {
-        // Safety check: Only the main admin can manage roles
         if (auth()->user()->role !== 'admin') {
             return back()->with('error', 'Unauthorized action.');
         }
 
-        // Validate the incoming role
         $request->validate([
             'role' => 'required|in:user,sub_admin,admin'
         ]);
 
-        // Prevent the admin from demoting themselves (locking themselves out)
         if (auth()->id() === $user->id) {
-            return back()->with('error', 'You cannot change your own administrative role.');
+            return back()->with('error', 'You cannot change your own role.');
         }
 
-        // Update the role
-        $user->update([
-            'role' => $request->role
-        ]);
+        $user->update(['role' => $request->role]);
 
         return back()->with('success', "{$user->name}'s role updated to " . ucfirst($request->role) . ".");
     }
 
-    /**
-     * Remove a user from the system
-     */
     public function destroyUser(User $user)
     {
-        // Only main admin can delete users
         if (auth()->user()->role !== 'admin') {
             return back()->with('error', 'Unauthorized action.');
         }
 
-        // Safety: Cannot delete the current logged-in admin
         if (auth()->id() === $user->id) {
-            return back()->with('error', 'You cannot delete your own account from here.');
-        }
-
-        // Safety: Prevent deleting other top-level admins if necessary
-        if ($user->role === 'admin' && User::where('role', 'admin')->count() <= 1) {
-            return back()->with('error', 'The system must have at least one main Admin.');
+            return back()->with('error', 'You cannot delete your own account.');
         }
 
         $user->delete();

@@ -48,6 +48,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    //my content routes
+    Route::get('/my-content', [PollController::class, 'myContent'])->name('polls.my-content');
+
     // Poll Actions
     Route::prefix('polls')->name('polls.')->group(function () {
         Route::get('/create', [PollController::class, 'create'])->name('create');

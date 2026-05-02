@@ -21,9 +21,9 @@
                                 <a href="{{ url('/dashboard') }}" class="text-sm text-gray-700 font-semibold hover:text-indigo-600 transition">Dashboard</a>
                             @else
                                 <a href="{{ route('login') }}" class="text-sm text-gray-700 font-semibold hover:text-indigo-600 transition">Log in</a>
-                                @if (Route::has('register'))
+                                {{-- @if (Route::has('register'))
                                     <a href="{{ route('register') }}" class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition">Register</a>
-                                @endif
+                                @endif --}}
                             @endauth
                         @endif
                     </div>

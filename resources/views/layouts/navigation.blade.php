@@ -97,6 +97,10 @@
                 {{ __('Create Poll') }}
             </x-responsive-nav-link>
 
+            <x-nav-link :href="route('polls.my-content')" :active="request()->routeIs('polls.my-content')">
+    {{ __('My Content') }}
+</x-nav-link>
+
             @if(Auth::user()->role === 'admin')
                 <x-responsive-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
                     {{ __('Manage Categories') }}
