@@ -44,20 +44,22 @@ class AdminController extends Controller
     /**
      * Toggle User Status (Ban/Enable)
      */
-    public function toggleStatus(User $user)
-    {
-        if (auth()->id() === $user->id) {
-            return back()->with('error', 'You cannot ban yourself.');
-        }
-
-        // Assuming you added the 'is_active' or 'is_banned' column
-        $user->update([
-            'is_banned' => !$user->is_banned 
-        ]);
-
-        $status = $user->is_banned ? 'banned' : 'unbanned';
-    return back()->with('success', "User account has been {$status}.");
+   public function toggleStatus(User $user)
+{
+    if (auth()->id() === $user->id) {
+        return back()->with('error', 'You cannot ban yourself.');
     }
+
+    // Perform the toggle
+    $user->is_banned = !$user->is_banned;
+    $user->save();
+
+    // Set message based on the NEW state
+    // If is_banned is true, the message should say "banned"
+    $message = $user->is_banned ? 'User account has been banned.' : 'User account has been unbanned.';
+    
+    return back()->with('success', $message);
+}
 
     public function updateRole(Request $request, User $user)
     {

@@ -29,7 +29,6 @@ Route::get('/', function () {
 | Google Socialite Routes
 |--------------------------------------------------------------------------
 */
-// Using GoogleAuthController alias so it doesn't break Breeze login
 Route::get('auth/google', [GoogleAuth::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('auth/google/callback', [GoogleAuth::class, 'handleGoogleCallback']);
 
@@ -40,18 +39,14 @@ Route::get('auth/google/callback', [GoogleAuth::class, 'handleGoogleCallback']);
 */
 Route::middleware(['auth', 'verified'])->group(function () {
     
-    // The main dashboard
     Route::get('/dashboard', [PollController::class, 'index'])->name('dashboard');
 
-    // Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    //my content routes
     Route::get('/my-content', [PollController::class, 'myContent'])->name('polls.my-content');
 
-    // Poll Actions
     Route::prefix('polls')->name('polls.')->group(function () {
         Route::get('/create', [PollController::class, 'create'])->name('create');
         Route::post('/', [PollController::class, 'store'])->name('store');
@@ -66,25 +61,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Admin & Sub-Admin Routes (Management Only)
+| Admin & Sub-Admin Routes
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'role:admin,sub_admin'])->prefix('admin')->name('admin.')->group(function () {
     
-    // Admin Dashboard
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
-
-    // Category Management
     Route::resource('categories', CategoryController::class);
 
-    // --- EXCLUSIVE MAIN ADMIN ONLY (User Management) ---
+    // MOVED: Now Sub-Admins can toggle status too
+    Route::patch('/users/{user}/toggle-status', [AdminController::class, 'toggleStatus'])->name('users.toggle-status');
+
+    // --- EXCLUSIVE MAIN ADMIN ONLY (Role & Deletion) ---
     Route::middleware(['role:admin'])->group(function () {
         Route::post('/users/{user}/update-role', [AdminController::class, 'updateRole'])->name('users.updateRole');
         Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
-
-        Route::patch('/users/{user}/toggle-status', [AdminController::class, 'toggleStatus'])->name('users.toggle-status');
     });
 });
 
-// This loads the standard Breeze login/register routes
 require __DIR__.'/auth.php';
