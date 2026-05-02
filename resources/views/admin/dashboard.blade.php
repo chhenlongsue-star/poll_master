@@ -2,6 +2,7 @@
     <div class="py-12 bg-gray-100">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
+            <!-- Flash Messages -->
             @if(session('success'))
                 <div class="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 shadow-sm">
                     {{ session('success') }}
@@ -60,7 +61,8 @@
                                 <div class="flex flex-col">
                                     <div class="flex items-center">
                                         <span class="text-gray-900 font-semibold">{{ $user->name }}</span>
-                                        @if(!$user->is_active)
+                                        <!-- Changed to is_banned logic -->
+                                        @if($user->is_banned)
                                             <span class="ml-2 px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-red-100 text-red-600 border border-red-200">
                                                 Banned
                                             </span>
@@ -88,11 +90,11 @@
                             <td class="px-5 py-5 border-b bg-white text-sm text-right">
                                 <div class="flex items-center justify-end space-x-4">
                                     @if(Auth::id() !== $user->id)
-                                        <!-- Ban/Enable Toggle -->
+                                        <!-- Ban/Enable Toggle using is_banned -->
                                         <form action="{{ route('admin.users.toggle-status', $user) }}" method="POST" class="inline">
                                             @csrf @method('PATCH')
-                                            <button type="submit" class="text-xs font-bold uppercase tracking-wider {{ $user->is_active ? 'text-orange-500 hover:text-orange-700' : 'text-green-500 hover:text-green-700' }}">
-                                                {{ $user->is_active ? 'Disable' : 'Enable' }}
+                                            <button type="submit" class="text-xs font-bold uppercase tracking-wider {{ $user->is_banned ? 'text-green-500 hover:text-green-700' : 'text-orange-500 hover:text-orange-700' }}">
+                                                {{ $user->is_banned ? 'Unban User' : 'Ban User' }}
                                             </button>
                                         </form>
 
@@ -120,6 +122,7 @@
         </div>
     </div>
 
+    <!-- Chart.js Script -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const ctx = document.getElementById('voteChart').getContext('2d');

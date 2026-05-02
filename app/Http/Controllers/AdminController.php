@@ -52,11 +52,11 @@ class AdminController extends Controller
 
         // Assuming you added the 'is_active' or 'is_banned' column
         $user->update([
-            'is_active' => !$user->is_active 
+            'is_banned' => !$user->is_banned 
         ]);
 
-        $status = $user->is_active ? 'enabled' : 'disabled';
-        return back()->with('success', "User account has been {$status}.");
+        $status = $user->is_banned ? 'banned' : 'unbanned';
+    return back()->with('success', "User account has been {$status}.");
     }
 
     public function updateRole(Request $request, User $user)

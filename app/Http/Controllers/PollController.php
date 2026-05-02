@@ -190,15 +190,16 @@ class PollController extends Controller
 {
     $user = auth()->user();
 
-    // Fetch polls created by the user
-    $createdPolls = Poll::where('user_id', $user->id)->latest()->get();
+    $myPolls = Poll::where('user_id', auth()->id())
+                   ->orderBy('created_at', 'desc')
+                   ->get();
 
     // Fetch polls the user has voted on
-    $voteHistory = \App\Models\Vote::where('user_id', $user->id)
-        ->with('poll')
-        ->latest()
-        ->get();
+    $myVotes = \App\Models\Vote::where('user_id', auth()->id())
+                                ->with('poll')
+                                ->orderBy('created_at', 'desc')
+                                ->get();
 
-    return view('polls.my-content', compact('createdPolls', 'voteHistory'));
+    return view('polls.my-content', compact('myPolls', 'myVotes'));
 }
 }
