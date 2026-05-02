@@ -26,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         
         $middleware->web(append: [
         \App\Http\Middleware\UpdateLastSeenAt::class,
+        \App\Http\Middleware\CheckBanned::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
