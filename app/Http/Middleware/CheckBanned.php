@@ -1,17 +1,24 @@
-public function handle(Request $request, Closure $next): Response
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class CheckBanned
 {
-    if (auth()->check() && auth()->user()->is_banned) {
-        // 1. Log the user out of the application
+    /**
+     * Handle an incoming request.
+     *
+     * @param  Closure(Request): (Response)  $next
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        if (auth()->check() && auth()->user()->is_banned) {
         auth()->logout();
-
-        // 2. Clear all session data for this user
-        $request->session()->invalidate();
-
-        // 3. Prevent CSRF attacks by regenerating the token
-        $request->session()->regenerateToken();
-
         return redirect()->route('login')->with('error', 'Your account has been disabled.');
     }
-
-    return $next($request);
+        return $next($request);
+    }
 }
