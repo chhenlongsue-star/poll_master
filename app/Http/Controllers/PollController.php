@@ -13,45 +13,63 @@ class PollController extends Controller
     /**
      * Display the user dashboard with filters and search.
      */
+    // public function index(Request $request)
+    // {
+    //     $search = $request->input('search');
+    //     $categoryId = $request->input('category');
+
+    //     $query = Poll::with(['user', 'category', 'options'])
+    //         ->withCount('votes')
+    //         ->where('is_active', true);
+
+    //     // Filter by Search (Title or Description)
+    //     if ($search) {
+    //         $query->where(function($q) use ($search) {
+    //             $q->where('title', 'like', "%{$search}%")
+    //               ->orWhere('description', 'like', "%{$search}%");
+    //         });
+    //     }
+
+    //     // Filter by Category
+    //     if ($categoryId) {
+    //         $query->where('category_id', $categoryId);
+    //     }
+
+    //     // Dashboard Sections (Cloning queries for different lists)
+    //     $recentPolls = (clone $query)->latest()->take(6)->get();
+    //     $popularPolls = (clone $query)->orderBy('votes_count', 'desc')->take(6)->get();
+    //     $adminPolls = (clone $query)->where('type', 'admin')->latest()->take(10)->get();
+    //     $userPolls = (clone $query)->where('type', 'user')->latest()->take(10)->get();
+
+    //     $categories = Category::all();
+
+    //     return view('dashboard', compact(
+    //         'recentPolls', 
+    //         'popularPolls', 
+    //         'adminPolls', 
+    //         'userPolls', 
+    //         'categories', 
+    //         'search'
+    //     ));
+    // }
     public function index(Request $request)
-    {
-        $search = $request->input('search');
-        $categoryId = $request->input('category');
+{
+    $query = Poll::with(['user', 'category'])->withCount('votes');
 
-        $query = Poll::with(['user', 'category', 'options'])
-            ->withCount('votes')
-            ->where('is_active', true);
-
-        // Filter by Search (Title or Description)
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
-            });
-        }
-
-        // Filter by Category
-        if ($categoryId) {
-            $query->where('category_id', $categoryId);
-        }
-
-        // Dashboard Sections (Cloning queries for different lists)
-        $recentPolls = (clone $query)->latest()->take(6)->get();
-        $popularPolls = (clone $query)->orderBy('votes_count', 'desc')->take(6)->get();
-        $adminPolls = (clone $query)->where('type', 'admin')->latest()->take(10)->get();
-        $userPolls = (clone $query)->where('type', 'user')->latest()->take(10)->get();
-
-        $categories = Category::all();
-
-        return view('dashboard', compact(
-            'recentPolls', 
-            'popularPolls', 
-            'adminPolls', 
-            'userPolls', 
-            'categories', 
-            'search'
-        ));
+    // Search logic
+    if ($request->filled('search')) {
+        $query->where('title', 'like', '%' . $request->search . '%');
     }
+
+    if ($request->filled('category')) {
+        $query->where('category_id', $request->category);
+    }
+
+    $allPolls = $query->latest()->paginate(12);
+    $categories = Category::all();
+
+    return view('dashboard', compact('allPolls', 'categories'));
+}
 
     /**
      * Show the form for creating a new poll.

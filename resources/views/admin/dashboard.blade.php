@@ -30,8 +30,8 @@
                     <h3 class="text-3xl font-bold text-gray-800">{{ $totalVotes }}</h3>
                 </div>
                 <div class="bg-white p-6 rounded-lg shadow border-b-4 border-yellow-500">
-                    <p class="text-gray-500 text-sm font-semibold uppercase">Admin Polls</p>
-                    <h3 class="text-3xl font-bold text-gray-800">{{ $adminPollsCount }}</h3>
+                    <p class="text-gray-500 text-sm font-semibold uppercase">TOTAL SYSTEM POLLS</p>
+                    <h3 class="text-3xl font-bold text-gray-800">{{ $totalPolls }}</h3>
                 </div>
             </div>
 

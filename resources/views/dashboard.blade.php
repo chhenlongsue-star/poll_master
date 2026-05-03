@@ -1,174 +1,118 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Poll Master Dashboard') }}
+            <h2 class="font-bold text-2xl text-gray-800 tracking-tight">
+                {{ __('Poll Master') }}
             </h2>
-            <a href="{{ route('polls.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition shadow-sm">
-                + Create New Poll
+            <a href="{{ route('polls.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition shadow-md flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Create Poll
             </a>
         </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-10 bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
-
-            @if(session('success'))
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                    <span class="block sm:inline">{{ session('success') }}</span>
-                </div>
-            @endif
-
-            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                <form action="{{ route('dashboard') }}" method="GET" class="flex flex-col md:flex-row gap-4">
-                    <div class="flex-1">
+            
+            <!-- 1. SEARCH & FILTERS -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                <form action="{{ route('dashboard') }}" method="GET" class="flex flex-col md:flex-row gap-3">
+                    <div class="flex-1 relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                            <i class="fas fa-search"></i>
+                        </span>
                         <x-text-input type="text" name="search" value="{{ request('search') }}" 
-                               placeholder="Search for polls by title or description..." 
-                               class="w-full" />
+                                     placeholder="Search for polls..." 
+                                     class="w-full pl-10 border-gray-200 focus:ring-indigo-500 rounded-lg" />
                     </div>
-                    <div class="w-full md:w-48">
-                        <select name="category" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                            <option value="">All Categories</option>
-                            @foreach($categories as $category)
-                                <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
-                                    {{ $category->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <x-primary-button type="submit" class="justify-center">
-                        {{ __('Search') }}
-                    </x-primary-button>
+                    <select name="category" class="md:w-48 border-gray-200 focus:ring-indigo-500 rounded-lg text-sm">
+                        <option value="">All Categories</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <x-primary-button type="submit" class="rounded-lg px-6">Search</x-primary-button>
                 </form>
             </div>
 
-            @if($adminPolls->count() > 0)
-            <section>
-                <h3 class="text-lg font-bold text-indigo-700 mb-4 flex items-center">
-                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" /><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" /></svg>
-                    Official Admin Polls
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @foreach($adminPolls as $poll)
-                        <div class="bg-indigo-50 border-l-4 border-indigo-600 p-6 rounded-lg shadow-sm hover:shadow-md transition">
-                            <div class="flex justify-between items-start">
-                                <span class="text-xs font-semibold text-indigo-600 uppercase tracking-wider">{{ $poll->category->name ?? 'Uncategorized' }}</span>
-                                
-                                @if(Auth::id() === $poll->user_id || Auth::user()->role === 'admin')
-                                <div class="flex space-x-2">
-                                    <a href="{{ route('polls.edit', $poll) }}" class="text-gray-400 hover:text-indigo-600 transition"><i class="fas fa-edit text-xs">Edit</i></a>
-                                    <form action="{{ route('polls.destroy', $poll) }}" method="POST" onsubmit="return confirm('Delete this poll?');">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="text-gray-400 hover:text-red-600 transition text-xs">Del</button>
-                                    </form>
-                                </div>
-                                @endif
-                            </div>
-                            
-                            <h4 class="text-xl font-bold mt-1 text-gray-900">{{ $poll->title }}</h4>
-                            <p class="text-sm text-gray-600 mt-2 line-clamp-2">{{ $poll->description }}</p>
-                            <div class="mt-4 flex justify-between items-center">
-                                <span class="text-xs text-gray-500">{{ $poll->votes_count }} votes</span>
-                                <a href="{{ route('polls.show', $poll) }}" class="text-indigo-600 font-bold hover:underline italic">Vote Now →</a>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </section>
-            @endif
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <section>
-                    <h3 class="text-lg font-bold text-gray-800 mb-4 italic">🔥 Most Popular</h3>
-                    <div class="space-y-4">
-                        @forelse($popularPolls as $poll)
-                            <div class="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between border border-gray-100 hover:border-indigo-200 transition">
-                                <div>
-                                    <h4 class="font-semibold text-gray-900">{{ $poll->title }}</h4>
-                                    <p class="text-xs text-gray-500">{{ $poll->votes_count }} people have voted</p>
-                                </div>
-                                <div class="flex items-center space-x-3">
-                                    @if(Auth::id() === $poll->user_id || Auth::user()->role === 'admin')
-                                        <a href="{{ route('polls.edit', $poll) }}" class="text-xs text-gray-400 hover:text-indigo-600">Edit</a>
-                                    @endif
-                                    <a href="{{ route('polls.show', $poll) }}" class="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-indigo-600 hover:text-white transition text-sm font-medium">Open</a>
-                                </div>
-                            </div>
-                        @empty
-                            <p class="text-gray-500 text-sm italic">No popular polls found.</p>
-                        @endforelse
-                    </div>
-                </section>
-
-                <section>
-                    <h3 class="text-lg font-bold text-gray-800 mb-4">🕒 Recently Added</h3>
-                    <div class="space-y-4">
-                        @forelse($recentPolls as $poll)
-                            <div class="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between border border-gray-100 hover:border-indigo-200 transition">
-                                <div>
-                                    <h4 class="font-semibold text-gray-900">{{ $poll->title }}</h4>
-                                    <p class="text-xs text-gray-400">By {{ $poll->user->name ?? 'User' }} • {{ $poll->created_at->diffForHumans() }}</p>
-                                </div>
-                                <div class="flex items-center space-x-3">
-                                    @if(Auth::id() === $poll->user_id || Auth::user()->role === 'admin')
-                                        <form action="{{ route('polls.destroy', $poll) }}" method="POST" onsubmit="return confirm('Delete?');">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="text-xs text-gray-400 hover:text-red-600">Delete</button>
-                                        </form>
-                                    @endif
-                                    <a href="{{ route('polls.show', $poll) }}" class="text-indigo-600 text-sm hover:underline font-medium">View Poll</a>
-                                </div>
-                            </div>
-                        @empty
-                            <p class="text-gray-500 text-sm italic">No recent polls found.</p>
-                        @endforelse
-                    </div>
-                </section>
+            <!-- 2. NAVIGATION TABS (Essential for UX) -->
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8">
+                    <button class="border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm">
+                        🌐 All Polls
+                    </button>
+                    <button class="border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        🛡️ Official
+                    </button>
+                    <button class="border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        🔥 Trending
+                    </button>
+                    <button class="border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        ⭐ Favorites
+                    </button>
+                </nav>
             </div>
 
-            <section>
-                <h3 class="text-lg font-bold text-gray-800 mb-4">👥 User Community Polls</h3>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-100">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Poll Title</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Votes</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse($userPolls as $poll)
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $poll->title }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <span class="px-2 py-1 bg-gray-100 rounded text-xs">
-                                        {{ $poll->category->name ?? 'None' }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $poll->votes_count }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
-                                    @if(Auth::id() === $poll->user_id || Auth::user()->role === 'admin')
-                                        <a href="{{ route('polls.edit', $poll) }}" class="text-blue-600 hover:text-blue-900">Edit</a>
-                                        <form action="{{ route('polls.destroy', $poll) }}" method="POST" class="inline" onsubmit="return confirm('Delete this poll?');">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
-                                        </form>
-                                    @endif
-                                    <a href="{{ route('polls.show', $poll) }}" class="text-indigo-600 hover:text-indigo-900 font-bold ml-4">Vote</a>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="4" class="px-6 py-4 text-center text-gray-500 italic">No community polls available.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+            <!-- 3. POLL GRID (Unified Design) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @forelse($allPolls as $poll)
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 group">
+                    <!-- Top Ribbon for Admin Polls -->
+                    @if($poll->user->role === 'admin' || $poll->user->role === 'sub_admin')
+                        <div class="bg-indigo-600 text-white text-[10px] uppercase font-black px-3 py-1 tracking-widest">Official Admin Poll</div>
+                    @endif
 
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700">
+                                {{ $poll->category->name ?? 'General' }}
+                            </span>
+                            
+                            <!-- Favorite Button Toggle -->
+                            <form action="{{ route('polls.favourite', $poll) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="text-gray-300 hover:text-red-500 transition">
+                                    <i class="fa{{ Auth::user()->favouritePolls->contains($poll->id) ? 's' : 'r' }} fa-heart text-lg"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                        <h4 class="text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition">{{ $poll->title }}</h4>
+                        <p class="text-sm text-gray-500 mt-2 line-clamp-2 h-10">{{ $poll->description }}</p>
+
+                        <div class="mt-6 flex items-center justify-between border-t border-gray-50 pt-4">
+                            <div class="flex items-center">
+                                <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs">
+                                    {{ substr($poll->user->name, 0, 1) }}
+                                </div>
+                                <div class="ml-2">
+                                    <p class="text-xs font-bold text-gray-800">{{ $poll->user->name }}</p>
+                                    <p class="text-[10px] text-gray-400">{{ $poll->created_at->diffForHumans() }}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs font-black text-indigo-600">{{ $poll->votes_count }} Votes</p>
+                            </div>
+                        </div>
+
+                        <a href="{{ route('polls.show', $poll) }}" class="mt-4 block w-full text-center bg-gray-900 text-white py-2 rounded-lg font-bold text-sm hover:bg-indigo-600 transition">
+                            Open Poll
+                        </a>
+                    </div>
+                </div>
+                @empty
+                    <div class="col-span-full py-20 text-center">
+                        <p class="text-gray-400 italic">No polls match your criteria.</p>
+                    </div>
+                @endforelse
+            </div>
+
+            <!-- Pagination -->
+            <div class="mt-8">
+                {{ $allPolls->links() }}
+            </div>
         </div>
     </div>
 </x-app-layout>

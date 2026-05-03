@@ -16,10 +16,12 @@ class AdminController extends Controller
         // Stats for cards
         $totalUsers = User::count();
         $totalVotes = Vote::count();
-        $adminPollsCount = Poll::where('type', 'admin')->count();
+        // $adminPollsCount = Poll::where('type', 'admin')->count();
+        $totalPolls = Poll::count();
         
         // Active Users Logic (Using the last_seen_at column from our middleware)
-        $activeUsersCount = User::where('last_seen_at', '>=', now()->subMinutes(5))->count();
+        // $activeUsersCount = User::where('last_seen_at', '>=', now()->subMinutes(5))->count();
+        $activeNow = User::where('last_seen_at', '>=', now()->subMinutes(5))->count();
 
         // Data for Voting Graphic (Last 7 days)
         $votingData = Vote::select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as aggregate'))
@@ -34,8 +36,8 @@ class AdminController extends Controller
         return view('admin.dashboard', compact(
             'totalUsers', 
             'totalVotes', 
-            'adminPollsCount', 
-            'activeUsersCount',
+            'totalPolls',
+            'activeNow',
             'votingData',
             'users'
         ));
@@ -93,4 +95,10 @@ class AdminController extends Controller
         $user->delete();
         return back()->with('success', 'User deleted successfully.');
     }
+
+    public function managePolls()
+{
+    $polls = Poll::with('user', 'category')->latest()->paginate(10);
+    return view('admin.polls.index', compact('polls'));
+}
 }

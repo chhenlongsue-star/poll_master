@@ -46,6 +46,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/my-content', [PollController::class, 'myContent'])->name('polls.my-content');
+    Route::post('/polls/{poll}/favourite', [PollController::class, 'toggleFavourite'])->name('polls.favourite');
 
     Route::prefix('polls')->name('polls.')->group(function () {
         Route::get('/create', [PollController::class, 'create'])->name('create');
@@ -66,6 +67,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 */
 Route::middleware(['auth', 'role:admin,sub_admin'])->prefix('admin')->name('admin.')->group(function () {
     
+
+    Route::get('/manage-polls', [AdminController::class, 'managePolls'])->name('admin.polls.index');
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
     Route::resource('categories', CategoryController::class);
 

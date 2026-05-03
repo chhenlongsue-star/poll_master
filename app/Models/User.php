@@ -79,4 +79,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(Vote::class);
     }
+
+    public function favouritePolls() {
+    return $this->belongsToMany(Poll::class, 'favourites');
+}
 }
