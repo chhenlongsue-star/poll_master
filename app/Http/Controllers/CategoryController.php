@@ -9,6 +9,15 @@ use Illuminate\Support\Str;
 class CategoryController extends Controller
 {
     /**
+     * Apply middleware to ensure both Admin and Sub-Admin can manage categories.
+     */
+    public function __construct()
+    {
+        // Using the middleware defined in your RoleMiddleware
+        $this->middleware('role:admin,sub_admin');
+    }
+
+    /**
      * Display a listing of the categories.
      */
     public function index()

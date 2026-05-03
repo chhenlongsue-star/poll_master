@@ -37,7 +37,7 @@
 
             <!-- Chart -->
             <div class="bg-white p-6 rounded-lg shadow mb-8">
-                <h3 class="text-lg font-bold mb-4 text-gray-700">Voting Activity (Last 7 Days)</h3>
+                <h3 class="text-lg font-bold mb-4 text-gray-700">Voting Activity</h3>
                 <canvas id="voteChart" height="100"></canvas>
             </div>
 

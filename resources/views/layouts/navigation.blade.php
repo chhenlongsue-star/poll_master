@@ -21,14 +21,15 @@
                     {{ __('My Content') }}
                     </x-nav-link>
 
-                    @if(Auth::user()->role === 'admin')
+                    @if(Auth::user()->role === 'admin' || Auth::user()->role === 'sub_admin')
                         <x-nav-link :href="route('admin.polls.index')" :active="request()->routeIs('admin.polls.index')">
                             {{ __('Manage Polls') }}
                         </x-nav-link>
+
                         <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
                             {{ __('Manage Categories') }}
                         </x-nav-link>
-                    @endif
+                    @endif  
 
                     @if(in_array(Auth::user()->role, ['admin', 'sub_admin']))
                         <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" class="text-indigo-600 font-bold">

@@ -67,6 +67,14 @@ class AdminController extends Controller
         return back()->with('success', "User has been successfully {$statusMessage}.");
     }
 
+    public function togglePollStatus(\App\Models\Poll $poll)
+{
+    $poll->is_active = !$poll->is_active;
+    $poll->save();
+
+    return back()->with('status', 'Poll status updated!');
+}
+
     /**
      * Change a User's Role (Admin Only)
      */
