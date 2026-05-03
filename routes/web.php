@@ -39,21 +39,26 @@ Route::get('auth/google/callback', [GoogleAuth::class, 'handleGoogleCallback']);
 */
 Route::middleware(['auth', 'verified'])->group(function () {
     
+    // User Dashboard & Content
     Route::get('/dashboard', [PollController::class, 'index'])->name('dashboard');
+    Route::get('/my-content', [PollController::class, 'myContent'])->name('polls.my-content');
+    Route::post('/polls/{poll}/favourite', [PollController::class, 'toggleFavourite'])->name('polls.favourite');
 
+    // Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('/my-content', [PollController::class, 'myContent'])->name('polls.my-content');
-    Route::post('/polls/{poll}/favourite', [PollController::class, 'toggleFavourite'])->name('polls.favourite');
-
+    /*
+    | Poll Management Routes
+    */
     Route::prefix('polls')->name('polls.')->group(function () {
         Route::get('/create', [PollController::class, 'create'])->name('create');
         Route::post('/', [PollController::class, 'store'])->name('store');
         Route::get('/{poll}', [PollController::class, 'show'])->name('show');
         Route::post('/{poll}/vote', [PollController::class, 'vote'])->name('vote');
         
+        // Ownership/Admin protected routes
         Route::get('/{poll}/edit', [PollController::class, 'edit'])->name('edit');
         Route::put('/{poll}', [PollController::class, 'update'])->name('update');
         Route::delete('/{poll}', [PollController::class, 'destroy'])->name('destroy');
@@ -62,24 +67,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Admin & Sub-Admin Routes
+| Staff Routes (Admin & Sub-Admin Shared)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'role:admin,sub_admin'])->prefix('admin')->name('admin.')->group(function () {
     
-
-    Route::get('/manage-polls', [AdminController::class, 'managePolls'])->name('polls.index');
+    // Admin Dashboards
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+    Route::get('/manage-polls', [AdminController::class, 'managePolls'])->name('polls.index');
+    
+    // Category Management (Shared: Sub-Admins can manage these)
     Route::resource('categories', CategoryController::class);
 
-    // MOVED: Now Sub-Admins can toggle status too
+    // User Management (Shared: Sub-Admins can now Ban, Change Role, and Delete)
     Route::patch('/users/{user}/toggle-status', [AdminController::class, 'toggleStatus'])->name('users.toggle-status');
+    Route::post('/users/{user}/update-role', [AdminController::class, 'updateRole'])->name('users.updateRole');
+    Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
 
-    // --- EXCLUSIVE MAIN ADMIN ONLY (Role & Deletion) ---
-    Route::middleware(['role:admin'])->group(function () {
-        Route::post('/users/{user}/update-role', [AdminController::class, 'updateRole'])->name('users.updateRole');
-        Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
-    });
+    // Poll Management (Shared: Both can toggle active/inactive)
+    Route::patch('/polls/{poll}/toggle-active', [AdminController::class, 'togglePollStatus'])->name('polls.toggle-active');
 });
 
 require __DIR__.'/auth.php';

@@ -21,34 +21,29 @@ class PollController extends Controller
         // 1. Handle Tabs Logic
         switch ($tab) {
             case 'official':
-                // Shows polls created by Admins or Sub-Admins
                 $query->where('type', 'admin');
                 break;
 
             case 'trending':
-                // Orders by highest vote count
                 $query->orderBy('votes_count', 'desc');
                 break;
 
             case 'community':
-                // Shows polls created by regular users
                 $query->where('type', 'user');
                 break;
 
             case 'favorites':
-                // Assuming you have a 'favorites' relationship or table
                 $query->whereHas('favoritedBy', function($q) {
                     $q->where('user_id', Auth::id());
                 });
                 break;
 
             default:
-                // 'all' tab or fallback
                 $query->latest();
                 break;
         }
 
-        // 2. Search Logic (Title or Description)
+        // 2. Search Logic
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -62,26 +57,18 @@ class PollController extends Controller
             $query->where('category_id', $request->category);
         }
 
-        // 4. Finalize Query with Pagination
-        // withQueryString() ensures that when you click page 2, the 'tab' and 'search' stay in the URL
         $allPolls = $query->paginate(12)->withQueryString();
         $categories = Category::all();
 
         return view('dashboard', compact('allPolls', 'categories'));
     }
 
-    /**
-     * Show the form for creating a new poll.
-     */
     public function create()
     {
         $categories = Category::all();
         return view('polls.create', compact('categories'));
     }
 
-    /**
-     * Store a newly created poll.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -91,7 +78,6 @@ class PollController extends Controller
             'options.*' => 'required|string|max:255',
         ]);
 
-        // Automatically determine if this is an official poll based on user role
         $type = in_array(Auth::user()->role, ['admin', 'sub_admin']) ? 'admin' : 'user';
 
         $poll = Poll::create([
@@ -109,9 +95,6 @@ class PollController extends Controller
         return redirect()->route('dashboard')->with('success', 'Poll created successfully!');
     }
 
-    /**
-     * Display a specific poll and its results.
-     */
     public function show(Poll $poll)
     {
         $poll->load(['options', 'user', 'category'])->loadCount('votes');
@@ -123,13 +106,10 @@ class PollController extends Controller
         return view('polls.show', compact('poll', 'userVote'));
     }
 
-    /**
-     * Handle the voting logic.
-     */
     public function vote(Request $request, Poll $poll)
     {
         $request->validate([
-            'option_id' => 'required|exists:options,id',
+            'option_id' => 'required|exists:options,id,poll_id,' . $poll->id,
         ]);
 
         $alreadyVoted = Vote::where('poll_id', $poll->id)
@@ -154,7 +134,8 @@ class PollController extends Controller
      */
     public function edit(Poll $poll)
     {
-        if (Auth::id() !== $poll->user_id && Auth::user()->role !== 'admin') {
+        // 🛡️ UPDATED: Check if User is Owner OR Admin OR Sub-Admin
+        if (Auth::id() !== $poll->user_id && !in_array(Auth::user()->role, ['admin', 'sub_admin'])) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -167,7 +148,8 @@ class PollController extends Controller
      */
     public function update(Request $request, Poll $poll)
     {
-        if (Auth::id() !== $poll->user_id && Auth::user()->role !== 'admin') {
+        // 🛡️ UPDATED: Check if User is Owner OR Admin OR Sub-Admin
+        if (Auth::id() !== $poll->user_id && !in_array(Auth::user()->role, ['admin', 'sub_admin'])) {
             abort(403);
         }
 
@@ -190,49 +172,41 @@ class PollController extends Controller
      */
     public function destroy(Poll $poll)
     {
-        if (Auth::id() !== $poll->user_id && Auth::user()->role !== 'admin') {
-            abort(403, 'You do not have permission to delete this poll.');
+        // 🛡️ UPDATED: Check if User is Owner OR Admin OR Sub-Admin
+        if (Auth::id() !== $poll->user_id && !in_array(Auth::user()->role, ['admin', 'sub_admin'])) {
+            return redirect()->back()->with('error', 'You do not have permission to delete this poll.');
         }
 
         $poll->delete();
 
-        return redirect()->route('dashboard')->with('success', 'Poll has been removed successfully.');
+        // Check if coming from "Manage Polls" or "My Content"
+        return redirect()->back()->with('success', 'Poll has been removed successfully.');
     }
 
-    /**
-     * Manage user's own created polls and voting history.
-     */
     public function myContent(Request $request)
-{
-    $user = auth()->user();
-    $tab = $request->get('tab', 'my-polls');
+    {
+        $user = auth()->user();
+        $tab = $request->get('tab', 'my-polls');
 
-    if ($tab === 'vote-history') {
-        // Get polls the user has voted on
-        $content = Poll::whereHas('votes', function($q) use ($user) {
-            $q->where('user_id', $user->id);
-        })->with(['user', 'category'])->withCount('votes')->latest()->paginate(12);
-    } else {
-        // Get polls the user created
-        $content = Poll::where('user_id', $user->id)
-            ->with(['category'])
-            ->withCount('votes')
-            ->latest()
-            ->paginate(12);
+        if ($tab === 'vote-history') {
+            $content = Poll::whereHas('votes', function($q) use ($user) {
+                $q->where('user_id', $user->id);
+            })->with(['user', 'category'])->withCount('votes')->latest()->paginate(12);
+        } else {
+            $content = Poll::where('user_id', $user->id)
+                ->with(['category'])
+                ->withCount('votes')
+                ->latest()
+                ->paginate(12);
+        }
+
+        return view('polls.my-content', compact('content', 'tab'));
     }
 
-    return view('polls.my-content', compact('content', 'tab'));
-}
-
-    /**
-     * Toggle Favorite status for a poll.
-     */
     public function toggleFavourite(Poll $poll)
     {
         $user = Auth::user();
-        
         $user->favouritePolls()->toggle($poll->id);
-
         return back();
     }
 }
