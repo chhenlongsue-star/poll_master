@@ -68,7 +68,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'role:admin,sub_admin'])->prefix('admin')->name('admin.')->group(function () {
     
 
-    Route::get('/manage-polls', [AdminController::class, 'managePolls'])->name('admin.polls.index');
+    Route::get('/manage-polls', [AdminController::class, 'managePolls'])->name('polls.index');
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
     Route::resource('categories', CategoryController::class);
 

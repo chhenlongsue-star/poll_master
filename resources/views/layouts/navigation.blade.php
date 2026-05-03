@@ -22,7 +22,7 @@
                     </x-nav-link>
 
                     @if(Auth::user()->role === 'admin')
-                        <x-nav-link :href="route('admin.manage-polls')" :active="request()->routeIs('admin.manage-polls')">
+                        <x-nav-link :href="route('admin.polls.index')" :active="request()->routeIs('admin.polls.index')">
                             {{ __('Manage Polls') }}
                         </x-nav-link>
                         <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
