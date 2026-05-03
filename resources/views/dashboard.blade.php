@@ -66,7 +66,7 @@
                     </a>
 
                     <a href="{{ route('dashboard', ['tab' => 'favorites']) }}" 
-                       class="{{ $currentTab == 'favorites' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition">
+                       class="{{ $currentTab == 'favourites' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition">
                         ⭐ Favorites
                     </a>
                 </nav>
@@ -87,7 +87,7 @@
                             </span>
                             
                             <!-- THE HEART BUTTON (Must match the route name in web.php) -->
-                            <form action="{{ route('polls.favorite', $poll) }}" method="POST">
+                            <form action="{{ route('polls.favourite', $poll) }}" method="POST">
                                 @csrf
                                 <button type="submit" class="transition hover:scale-110">
                                     @if(Auth::user()->favouritePolls->contains($poll->id))

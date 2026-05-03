@@ -220,11 +220,10 @@ class PollController extends Controller
     /**
      * Toggle Favorite status for a poll.
      */
-    public function toggleFavorite(Poll $poll)
+    public function toggleFavourite(Poll $poll)
     {
         $user = Auth::user();
         
-        // This uses a many-to-many relationship (toggle adds if missing, removes if present)
         $user->favouritePolls()->toggle($poll->id);
 
         return back();
