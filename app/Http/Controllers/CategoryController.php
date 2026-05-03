@@ -5,16 +5,21 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+// Import these two for Laravel 12 middleware
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class CategoryController extends Controller
+class CategoryController extends Controller implements HasMiddleware
 {
     /**
-     * Apply middleware to ensure both Admin and Sub-Admin can manage categories.
+     * Get the middleware that should be assigned to the controller.
      */
-    public function __construct()
+    public static function middleware(): array
     {
-        // Using the middleware defined in your RoleMiddleware
-        $this->middleware('role:admin,sub_admin');
+        return [
+            // This ensures both Admin and Sub-Admin can access these functions
+            new Middleware('role:admin,sub_admin'),
+        ];
     }
 
     /**
@@ -57,7 +62,6 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $request->validate([
-            // Unique check ignores the current category ID
             'name' => 'required|max:255|unique:categories,name,' . $category->id,
         ]);
 

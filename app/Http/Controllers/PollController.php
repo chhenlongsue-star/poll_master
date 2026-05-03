@@ -12,10 +12,15 @@ class PollController extends Controller
 {
     /**
      * Display the user dashboard with functional tabs, filters, and search.
+     * Only displays ACTIVE polls.
      */
     public function index(Request $request)
     {
-        $query = Poll::with(['user', 'category'])->withCount('votes');
+        // Global filter: Only show active polls on the public dashboard
+        $query = Poll::with(['user', 'category'])
+            ->withCount('votes')
+            ->where('is_active', true); 
+
         $tab = $request->query('tab', 'all');
 
         // 1. Handle Tabs Logic
@@ -86,6 +91,7 @@ class PollController extends Controller
             'user_id' => Auth::id(),
             'category_id' => $request->category_id,
             'type' => $type,
+            'is_active' => true, // Default to active on creation
         ]);
 
         foreach ($request->options as $optionText) {
@@ -97,6 +103,11 @@ class PollController extends Controller
 
     public function show(Poll $poll)
     {
+        // Prevent normal users from viewing inactive polls via direct URL
+        if (!$poll->is_active && !in_array(Auth::user()->role, ['admin', 'sub_admin'])) {
+            abort(404, 'This poll has been deactivated by an administrator.');
+        }
+
         $poll->load(['options', 'user', 'category'])->loadCount('votes');
         
         $userVote = Vote::where('poll_id', $poll->id)
@@ -108,6 +119,10 @@ class PollController extends Controller
 
     public function vote(Request $request, Poll $poll)
     {
+        if (!$poll->is_active) {
+            return back()->with('error', 'Voting is closed for this poll.');
+        }
+
         $request->validate([
             'option_id' => 'required|exists:options,id,poll_id,' . $poll->id,
         ]);
@@ -129,12 +144,8 @@ class PollController extends Controller
         return redirect()->route('polls.show', $poll)->with('success', 'Thank you for voting!');
     }
 
-    /**
-     * Show the form for editing the poll.
-     */
     public function edit(Poll $poll)
     {
-        // 🛡️ UPDATED: Check if User is Owner OR Admin OR Sub-Admin
         if (Auth::id() !== $poll->user_id && !in_array(Auth::user()->role, ['admin', 'sub_admin'])) {
             abort(403, 'Unauthorized action.');
         }
@@ -143,12 +154,8 @@ class PollController extends Controller
         return view('polls.edit', compact('poll', 'categories'));
     }
 
-    /**
-     * Update the poll in storage.
-     */
     public function update(Request $request, Poll $poll)
     {
-        // 🛡️ UPDATED: Check if User is Owner OR Admin OR Sub-Admin
         if (Auth::id() !== $poll->user_id && !in_array(Auth::user()->role, ['admin', 'sub_admin'])) {
             abort(403);
         }
@@ -167,19 +174,13 @@ class PollController extends Controller
         return redirect()->route('dashboard')->with('success', 'Poll updated successfully!');
     }
 
-    /**
-     * Remove the poll from storage.
-     */
     public function destroy(Poll $poll)
     {
-        // 🛡️ UPDATED: Check if User is Owner OR Admin OR Sub-Admin
         if (Auth::id() !== $poll->user_id && !in_array(Auth::user()->role, ['admin', 'sub_admin'])) {
             return redirect()->back()->with('error', 'You do not have permission to delete this poll.');
         }
 
         $poll->delete();
-
-        // Check if coming from "Manage Polls" or "My Content"
         return redirect()->back()->with('success', 'Poll has been removed successfully.');
     }
 

@@ -17,6 +17,7 @@ Route::get('/', function () {
     $trendingPolls = Poll::with(['category', 'options'])
         ->withCount('votes')
         ->where('is_active', true)
+        ->where('is_active', true)
         ->orderBy('votes_count', 'desc')
         ->take(3)
         ->get();
