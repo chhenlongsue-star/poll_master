@@ -57,4 +57,9 @@ class Poll extends Model
     {
         return $this->hasMany(Vote::class);
     }
+
+    public function favoritedBy()
+{
+    return $this->belongsToMany(User::class, 'favourites');
+}
 }

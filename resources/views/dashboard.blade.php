@@ -39,21 +39,40 @@
 
             <!-- 2. NAVIGATION TABS (Essential for UX) -->
             <div class="border-b border-gray-200">
-                <nav class="-mb-px flex space-x-8">
-                    <button class="border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm">
-                        🌐 All Polls
-                    </button>
-                    <button class="border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-                        🛡️ Official
-                    </button>
-                    <button class="border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-                        🔥 Trending
-                    </button>
-                    <button class="border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-                        ⭐ Favorites
-                    </button>
-                </nav>
-            </div>
+    <nav class="-mb-px flex space-x-8 overflow-x-auto">
+        @php $currentTab = request('tab', 'all'); @endphp
+
+        <!-- All Polls -->
+        <a href="{{ route('dashboard', ['tab' => 'all']) }}" 
+           class="{{ $currentTab == 'all' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700' }} whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm transition">
+            🌐 All Polls
+        </a>
+
+        <!-- Official (Admin) -->
+        <a href="{{ route('dashboard', ['tab' => 'official']) }}" 
+           class="{{ $currentTab == 'official' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition">
+            🛡️ Official
+        </a>
+
+        <!-- Trending -->
+        <a href="{{ route('dashboard', ['tab' => 'trending']) }}" 
+           class="{{ $currentTab == 'trending' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition">
+            🔥 Trending
+        </a>
+
+        <!-- User Community (New Button) -->
+        <a href="{{ route('dashboard', ['tab' => 'community']) }}" 
+           class="{{ $currentTab == 'community' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition">
+            👥 Community
+        </a>
+
+        <!-- Favorites -->
+        <a href="{{ route('dashboard', ['tab' => 'favorites']) }}" 
+           class="{{ $currentTab == 'favorites' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition">
+            ⭐ Favorites
+        </a>
+    </nav>
+</div>
 
             <!-- 3. POLL GRID (Unified Design) -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

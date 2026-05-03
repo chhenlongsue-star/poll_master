@@ -21,7 +21,7 @@ class AdminController extends Controller
         
         // Active Users Logic (Using the last_seen_at column from our middleware)
         // $activeUsersCount = User::where('last_seen_at', '>=', now()->subMinutes(5))->count();
-        $activeNow = User::where('last_seen_at', '>=', now()->subMinutes(5))->count();
+        $activeUsersCount = User::where('last_seen_at', '>=', now()->subMinutes(5))->count();
 
         // Data for Voting Graphic (Last 7 days)
         $votingData = Vote::select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as aggregate'))

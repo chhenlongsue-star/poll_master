@@ -11,65 +11,64 @@ use Illuminate\Support\Facades\Auth;
 class PollController extends Controller
 {
     /**
-     * Display the user dashboard with filters and search.
+     * Display the user dashboard with functional tabs, filters, and search.
      */
-    // public function index(Request $request)
-    // {
-    //     $search = $request->input('search');
-    //     $categoryId = $request->input('category');
-
-    //     $query = Poll::with(['user', 'category', 'options'])
-    //         ->withCount('votes')
-    //         ->where('is_active', true);
-
-    //     // Filter by Search (Title or Description)
-    //     if ($search) {
-    //         $query->where(function($q) use ($search) {
-    //             $q->where('title', 'like', "%{$search}%")
-    //               ->orWhere('description', 'like', "%{$search}%");
-    //         });
-    //     }
-
-    //     // Filter by Category
-    //     if ($categoryId) {
-    //         $query->where('category_id', $categoryId);
-    //     }
-
-    //     // Dashboard Sections (Cloning queries for different lists)
-    //     $recentPolls = (clone $query)->latest()->take(6)->get();
-    //     $popularPolls = (clone $query)->orderBy('votes_count', 'desc')->take(6)->get();
-    //     $adminPolls = (clone $query)->where('type', 'admin')->latest()->take(10)->get();
-    //     $userPolls = (clone $query)->where('type', 'user')->latest()->take(10)->get();
-
-    //     $categories = Category::all();
-
-    //     return view('dashboard', compact(
-    //         'recentPolls', 
-    //         'popularPolls', 
-    //         'adminPolls', 
-    //         'userPolls', 
-    //         'categories', 
-    //         'search'
-    //     ));
-    // }
     public function index(Request $request)
-{
-    $query = Poll::with(['user', 'category'])->withCount('votes');
+    {
+        $query = Poll::with(['user', 'category'])->withCount('votes');
+        $tab = $request->query('tab', 'all');
 
-    // Search logic
-    if ($request->filled('search')) {
-        $query->where('title', 'like', '%' . $request->search . '%');
+        // 1. Handle Tabs Logic
+        switch ($tab) {
+            case 'official':
+                // Shows polls created by Admins or Sub-Admins
+                $query->where('type', 'admin');
+                break;
+
+            case 'trending':
+                // Orders by highest vote count
+                $query->orderBy('votes_count', 'desc');
+                break;
+
+            case 'community':
+                // Shows polls created by regular users
+                $query->where('type', 'user');
+                break;
+
+            case 'favorites':
+                // Assuming you have a 'favorites' relationship or table
+                $query->whereHas('favoritedBy', function($q) {
+                    $q->where('user_id', Auth::id());
+                });
+                break;
+
+            default:
+                // 'all' tab or fallback
+                $query->latest();
+                break;
+        }
+
+        // 2. Search Logic (Title or Description)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // 3. Category Filter
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+
+        // 4. Finalize Query with Pagination
+        // withQueryString() ensures that when you click page 2, the 'tab' and 'search' stay in the URL
+        $allPolls = $query->paginate(12)->withQueryString();
+        $categories = Category::all();
+
+        return view('dashboard', compact('allPolls', 'categories'));
     }
-
-    if ($request->filled('category')) {
-        $query->where('category_id', $request->category);
-    }
-
-    $allPolls = $query->latest()->paginate(12);
-    $categories = Category::all();
-
-    return view('dashboard', compact('allPolls', 'categories'));
-}
 
     /**
      * Show the form for creating a new poll.
@@ -92,6 +91,7 @@ class PollController extends Controller
             'options.*' => 'required|string|max:255',
         ]);
 
+        // Automatically determine if this is an official poll based on user role
         $type = in_array(Auth::user()->role, ['admin', 'sub_admin']) ? 'admin' : 'user';
 
         $poll = Poll::create([
@@ -154,7 +154,6 @@ class PollController extends Controller
      */
     public function edit(Poll $poll)
     {
-        // Security check
         if (Auth::id() !== $poll->user_id && Auth::user()->role !== 'admin') {
             abort(403, 'Unauthorized action.');
         }
@@ -168,7 +167,6 @@ class PollController extends Controller
      */
     public function update(Request $request, Poll $poll)
     {
-        // Security check
         if (Auth::id() !== $poll->user_id && Auth::user()->role !== 'admin') {
             abort(403);
         }
@@ -192,32 +190,43 @@ class PollController extends Controller
      */
     public function destroy(Poll $poll)
     {
-        // Security check
         if (Auth::id() !== $poll->user_id && Auth::user()->role !== 'admin') {
             abort(403, 'You do not have permission to delete this poll.');
         }
 
-        // Deletes the poll. 
-        // Note: Ensure your migrations use ->onDelete('cascade') for options and votes!
         $poll->delete();
 
         return redirect()->route('dashboard')->with('success', 'Poll has been removed successfully.');
     }
 
+    /**
+     * Manage user's own created polls and voting history.
+     */
     public function myContent()
-{
-    $user = auth()->user();
+    {
+        $myPolls = Poll::where('user_id', Auth::id())
+                       ->withCount('votes')
+                       ->orderBy('created_at', 'desc')
+                       ->get();
 
-    $myPolls = Poll::where('user_id', auth()->id())
-                   ->orderBy('created_at', 'desc')
-                   ->get();
+        $myVotes = Vote::where('user_id', Auth::id())
+                       ->with('poll')
+                       ->orderBy('created_at', 'desc')
+                       ->get();
 
-    // Fetch polls the user has voted on
-    $myVotes = \App\Models\Vote::where('user_id', auth()->id())
-                                ->with('poll')
-                                ->orderBy('created_at', 'desc')
-                                ->get();
+        return view('polls.my-content', compact('myPolls', 'myVotes'));
+    }
 
-    return view('polls.my-content', compact('myPolls', 'myVotes'));
-}
+    /**
+     * Toggle Favorite status for a poll.
+     */
+    public function toggleFavorite(Poll $poll)
+    {
+        $user = Auth::user();
+        
+        // This uses a many-to-many relationship (toggle adds if missing, removes if present)
+        $user->favouritePolls()->toggle($poll->id);
+
+        return back();
+    }
 }
