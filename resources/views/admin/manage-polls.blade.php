@@ -8,20 +8,33 @@
     <div class="py-10 bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             
-            <!-- Search & Filter Bar -->
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-                <form action="{{ route('admin.polls.index') }}" method="GET" class="flex flex-col md:flex-row gap-3">
-                    <div class="flex-1 relative">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
-                            <i class="fas fa-search"></i>
-                        </span>
-                        <x-text-input type="text" name="search" value="{{ request('search') }}" 
-                                     placeholder="Search polls by title..." 
-                                     class="w-full pl-10 border-gray-200 focus:ring-indigo-500 rounded-lg" />
-                    </div>
-                    <x-primary-button type="submit">Search</x-primary-button>
-                </form>
-            </div>
+           <!-- Search & Filter Bar -->
+<div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+    <form action="{{ route('admin.polls.index') }}" method="GET" class="flex flex-col md:flex-row gap-3">
+        
+        <!-- Search Input -->
+        <div class="flex-1 relative">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                <i class="fas fa-search"></i>
+            </span>
+            <x-text-input type="text" name="search" value="{{ request('search') }}" 
+                         placeholder="Search polls by title..." 
+                         class="w-full pl-10 border-gray-200 focus:ring-indigo-500 rounded-lg" />
+        </div>
+
+        <!-- Your Category Dropdown -->
+        <select name="category" class="md:w-48 border-gray-200 focus:ring-indigo-500 rounded-lg text-sm">
+            <option value="">All Categories</option>
+            @foreach($categories as $category)
+                <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
+                    {{ $category->name }}
+                </option>
+            @endforeach
+        </select>
+
+        <x-primary-button type="submit">Filter</x-primary-button>
+    </form>
+</div>
 
             <!-- Polls Table -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">

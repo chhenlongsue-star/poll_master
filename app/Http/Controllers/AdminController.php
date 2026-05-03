@@ -98,11 +98,16 @@ class AdminController extends Controller
 
     public function managePolls(Request $request)
 {
-    $query = Poll::with(['user', 'category'])->withCount('votes');
+    $query = \App\Models\Poll::with(['user', 'category'])->withCount('votes');
 
-    // Search filter
+    // Filter by Search Keyword
     if ($request->filled('search')) {
         $query->where('title', 'like', '%' . $request->search . '%');
+    }
+
+    // Filter by Category ID
+    if ($request->filled('category')) {
+        $query->where('category_id', $request->category);
     }
 
     $allPolls = $query->latest()->paginate(10);
