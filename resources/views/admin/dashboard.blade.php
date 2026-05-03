@@ -61,7 +61,6 @@
                                 <div class="flex flex-col">
                                     <div class="flex items-center">
                                         <span class="text-gray-900 font-semibold">{{ $user->name }}</span>
-                                        <!-- Changed to is_banned logic -->
                                         @if($user->is_banned)
                                             <span class="ml-2 px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-red-100 text-red-600 border border-red-200">
                                                 Banned
@@ -72,7 +71,8 @@
                                 </div>
                             </td>
                             <td class="px-5 py-5 border-b bg-white text-sm">
-                                @if(Auth::id() !== $user->id)
+                                {{-- SHIELD: Only Admins can change roles. Sub-admins see text only --}}
+                                @if(Auth::user()->role === 'admin' && Auth::id() !== $user->id)
                                     <form action="{{ route('admin.users.updateRole', $user) }}" method="POST" class="flex items-center">
                                         @csrf
                                         <select name="role" onchange="this.form.submit()" class="text-xs rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
@@ -82,15 +82,19 @@
                                         </select>
                                     </form>
                                 @else
-                                    <span class="px-2 py-1 rounded bg-blue-100 text-blue-700 text-[10px] font-bold uppercase">
-                                        CURRENT ADMIN
+                                    <span class="px-2 py-1 rounded {{ $user->role === 'admin' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700' }} text-[10px] font-bold uppercase">
+                                        {{ $user->role === 'admin' ? 'ADMIN' : ($user->role === 'sub_admin' ? 'SUB-ADMIN' : 'USER') }}
                                     </span>
                                 @endif
                             </td>
                             <td class="px-5 py-5 border-b bg-white text-sm text-right">
                                 <div class="flex items-center justify-end space-x-4">
-                                    @if(Auth::id() !== $user->id)
-                                        <!-- Ban/Enable Toggle using is_banned -->
+                                    {{-- HIERARCHY CHECK: 
+                                         1. Don't show for yourself 
+                                         2. Sub-Admins cannot see buttons for Admins --}}
+                                    @if(Auth::id() !== $user->id && (Auth::user()->role === 'admin' || $user->role !== 'admin'))
+                                        
+                                        <!-- Ban/Enable Toggle -->
                                         <form action="{{ route('admin.users.toggle-status', $user) }}" method="POST" class="inline">
                                             @csrf @method('PATCH')
                                             <button type="submit" class="text-xs font-bold uppercase tracking-wider {{ $user->is_banned ? 'text-green-500 hover:text-green-700' : 'text-orange-500 hover:text-orange-700' }}">
@@ -98,7 +102,8 @@
                                             </button>
                                         </form>
 
-                                        <!-- Delete Button -->
+                                        <!-- Delete Button (Only for Super Admins) -->
+                                        @if(Auth::user()->role === 'admin')
                                         <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Are you sure? This cannot be undone.');" class="inline">
                                             @csrf @method('DELETE')
                                             <button class="text-red-600 hover:text-red-900 font-medium text-xs flex items-center">
@@ -108,6 +113,10 @@
                                                 Delete
                                             </button>
                                         </form>
+                                        @endif
+                                        
+                                    @else
+                                        <span class="text-gray-400 italic text-[10px]">Protected</span>
                                     @endif
                                 </div>
                             </td>

@@ -48,19 +48,24 @@ class AdminController extends Controller
      */
    public function toggleStatus(User $user)
 {
-    if (auth()->id() === $user->id) {
-        return back()->with('error', 'You cannot ban yourself.');
+    $currentUser = auth()->user();
+
+    // 🛡️ THE SHIELD: Block Sub-Admins from touching Admins
+    if ($currentUser->role === 'sub_admin' && $user->role === 'admin') {
+        return back()->with('error', 'Security Alert: Sub-Admins cannot modify Admin accounts.');
     }
 
-    // Perform the toggle
-    $user->is_banned = !$user->is_banned;
+    // 🛡️ SELF-PROTECTION: Don't let an admin ban themselves
+    if ($currentUser->id === $user->id) {
+        return back()->with('error', 'You cannot deactivate your own account.');
+    }
+
+    // Logic: If active, make inactive (and vice-versa)
+    // Assuming your column name is 'is_active' or 'status'
+    $user->status = ($user->status === 'active') ? 'inactive' : 'active';
     $user->save();
 
-    // Set message based on the NEW state
-    // If is_banned is true, the message should say "banned"
-    $message = $user->is_banned ? 'User account has been banned.' : 'User account has been unbanned.';
-    
-    return back()->with('success', $message);
+    return back()->with('success', 'User status updated successfully.');
 }
 
     public function updateRole(Request $request, User $user)
