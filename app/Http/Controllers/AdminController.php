@@ -96,9 +96,17 @@ class AdminController extends Controller
         return back()->with('success', 'User deleted successfully.');
     }
 
-    public function managePolls()
+    public function managePolls(Request $request)
 {
-    $polls = Poll::with('user', 'category')->latest()->paginate(10);
-    return view('admin.polls.index', compact('polls'));
-}
+    $query = Poll::with(['user', 'category'])->withCount('votes');
+
+    // Search filter
+    if ($request->filled('search')) {
+        $query->where('title', 'like', '%' . $request->search . '%');
+    }
+
+    $allPolls = $query->latest()->paginate(10);
+    $categories = \App\Models\Category::all();
+
+    return view('admin.manage-polls', compact('allPolls', 'categories'));
 }

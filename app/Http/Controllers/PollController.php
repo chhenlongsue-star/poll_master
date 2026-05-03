@@ -202,20 +202,27 @@ class PollController extends Controller
     /**
      * Manage user's own created polls and voting history.
      */
-    public function myContent()
-    {
-        $myPolls = Poll::where('user_id', Auth::id())
-                       ->withCount('votes')
-                       ->orderBy('created_at', 'desc')
-                       ->get();
+    public function myContent(Request $request)
+{
+    $user = auth()->user();
+    $tab = $request->get('tab', 'my-polls');
 
-        $myVotes = Vote::where('user_id', Auth::id())
-                       ->with('poll')
-                       ->orderBy('created_at', 'desc')
-                       ->get();
-
-        return view('polls.my-content', compact('myPolls', 'myVotes'));
+    if ($tab === 'vote-history') {
+        // Get polls the user has voted on
+        $content = Poll::whereHas('votes', function($q) use ($user) {
+            $q->where('user_id', $user->id);
+        })->with(['user', 'category'])->withCount('votes')->latest()->paginate(12);
+    } else {
+        // Get polls the user created
+        $content = Poll::where('user_id', $user->id)
+            ->with(['category'])
+            ->withCount('votes')
+            ->latest()
+            ->paginate(12);
     }
+
+    return view('polls.my-content', compact('content', 'tab'));
+}
 
     /**
      * Toggle Favorite status for a poll.
