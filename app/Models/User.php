@@ -81,6 +81,6 @@ class User extends Authenticatable
     }
 
     public function favouritePolls() {
-    return $this->belongsToMany(Poll::class, 'favourites');
+    return $this->belongsToMany(Poll::class, 'favourites')->withTimestamps();
 }
 }

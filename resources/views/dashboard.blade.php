@@ -1,4 +1,7 @@
 <x-app-layout>
+    <!-- 1. ADD FONT AWESOME (Ensures the heart is visible) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-bold text-2xl text-gray-800 tracking-tight">
@@ -14,7 +17,7 @@
     <div class="py-10 bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
             
-            <!-- 1. SEARCH & FILTERS -->
+            <!-- 2. SEARCH & FILTERS -->
             <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
                 <form action="{{ route('dashboard') }}" method="GET" class="flex flex-col md:flex-row gap-3">
                     <div class="flex-1 relative">
@@ -37,49 +40,43 @@
                 </form>
             </div>
 
-            <!-- 2. NAVIGATION TABS (Essential for UX) -->
+            <!-- 3. NAVIGATION TABS -->
             <div class="border-b border-gray-200">
-    <nav class="-mb-px flex space-x-8 overflow-x-auto">
-        @php $currentTab = request('tab', 'all'); @endphp
+                <nav class="-mb-px flex space-x-8 overflow-x-auto">
+                    @php $currentTab = request('tab', 'all'); @endphp
 
-        <!-- All Polls -->
-        <a href="{{ route('dashboard', ['tab' => 'all']) }}" 
-           class="{{ $currentTab == 'all' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700' }} whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm transition">
-            🌐 All Polls
-        </a>
+                    <a href="{{ route('dashboard', ['tab' => 'all']) }}" 
+                       class="{{ $currentTab == 'all' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700' }} whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm transition">
+                        🌐 All Polls
+                    </a>
 
-        <!-- Official (Admin) -->
-        <a href="{{ route('dashboard', ['tab' => 'official']) }}" 
-           class="{{ $currentTab == 'official' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition">
-            🛡️ Official
-        </a>
+                    <a href="{{ route('dashboard', ['tab' => 'official']) }}" 
+                       class="{{ $currentTab == 'official' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition">
+                        🛡️ Official
+                    </a>
 
-        <!-- Trending -->
-        <a href="{{ route('dashboard', ['tab' => 'trending']) }}" 
-           class="{{ $currentTab == 'trending' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition">
-            🔥 Trending
-        </a>
+                    <a href="{{ route('dashboard', ['tab' => 'trending']) }}" 
+                       class="{{ $currentTab == 'trending' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition">
+                        🔥 Trending
+                    </a>
 
-        <!-- User Community (New Button) -->
-        <a href="{{ route('dashboard', ['tab' => 'community']) }}" 
-           class="{{ $currentTab == 'community' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition">
-            👥 Community
-        </a>
+                    <a href="{{ route('dashboard', ['tab' => 'community']) }}" 
+                       class="{{ $currentTab == 'community' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition">
+                        👥 Community
+                    </a>
 
-        <!-- Favorites -->
-        <a href="{{ route('dashboard', ['tab' => 'favorites']) }}" 
-           class="{{ $currentTab == 'favorites' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition">
-            ⭐ Favorites
-        </a>
-    </nav>
-</div>
+                    <a href="{{ route('dashboard', ['tab' => 'favorites']) }}" 
+                       class="{{ $currentTab == 'favorites' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700' }} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition">
+                        ⭐ Favorites
+                    </a>
+                </nav>
+            </div>
 
-            <!-- 3. POLL GRID (Unified Design) -->
+            <!-- 4. POLL GRID -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @forelse($allPolls as $poll)
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 group">
-                    <!-- Top Ribbon for Admin Polls -->
-                    @if($poll->user->role === 'admin' || $poll->user->role === 'sub_admin')
+                    @if($poll->type === 'admin')
                         <div class="bg-indigo-600 text-white text-[10px] uppercase font-black px-3 py-1 tracking-widest">Official Admin Poll</div>
                     @endif
 
@@ -89,11 +86,15 @@
                                 {{ $poll->category->name ?? 'General' }}
                             </span>
                             
-                            <!-- Favorite Button Toggle -->
-                            <form action="{{ route('polls.favourite', $poll) }}" method="POST">
+                            <!-- THE HEART BUTTON (Must match the route name in web.php) -->
+                            <form action="{{ route('polls.favorite', $poll) }}" method="POST">
                                 @csrf
-                                <button type="submit" class="text-gray-300 hover:text-red-500 transition">
-                                    <i class="fa{{ Auth::user()->favouritePolls->contains($poll->id) ? 's' : 'r' }} fa-heart text-lg"></i>
+                                <button type="submit" class="transition hover:scale-110">
+                                    @if(Auth::user()->favouritePolls->contains($poll->id))
+                                        <i class="fas fa-heart text-red-500 text-lg"></i>
+                                    @else
+                                        <i class="far fa-heart text-gray-300 hover:text-red-400 text-lg"></i>
+                                    @endif
                                 </button>
                             </form>
                         </div>
@@ -103,7 +104,7 @@
 
                         <div class="mt-6 flex items-center justify-between border-t border-gray-50 pt-4">
                             <div class="flex items-center">
-                                <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs">
+                                <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs uppercase">
                                     {{ substr($poll->user->name, 0, 1) }}
                                 </div>
                                 <div class="ml-2">
@@ -116,19 +117,18 @@
                             </div>
                         </div>
 
-                        <a href="{{ route('polls.show', $poll) }}" class="mt-4 block w-full text-center bg-gray-900 text-white py-2 rounded-lg font-bold text-sm hover:bg-indigo-600 transition">
+                        <a href="{{ route('polls.show', $poll) }}" class="mt-4 block w-full text-center bg-gray-900 text-white py-2 rounded-lg font-bold text-sm hover:bg-indigo-600 transition shadow-sm">
                             Open Poll
                         </a>
                     </div>
                 </div>
                 @empty
                     <div class="col-span-full py-20 text-center">
-                        <p class="text-gray-400 italic">No polls match your criteria.</p>
+                        <p class="text-gray-400 italic">No polls found in this section.</p>
                     </div>
                 @endforelse
             </div>
 
-            <!-- Pagination -->
             <div class="mt-8">
                 {{ $allPolls->links() }}
             </div>

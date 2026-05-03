@@ -37,7 +37,7 @@ class AdminController extends Controller
             'totalUsers', 
             'totalVotes', 
             'totalPolls',
-            'activeNow',
+            'activeUsersCount',
             'votingData',
             'users'
         ));
