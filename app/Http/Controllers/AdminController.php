@@ -108,5 +108,6 @@ class AdminController extends Controller
     $allPolls = $query->latest()->paginate(10);
     $categories = \App\Models\Category::all();
 
-    return view('admin.manage-polls', compact('allPolls', 'categories'));
+    return view('admin.polls.index', compact('allPolls', 'categories'));
+}
 }
