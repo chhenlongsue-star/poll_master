@@ -55,6 +55,7 @@ Route::middleware(['auth', 'role:admin,sub_admin'])->prefix('admin')->name('admi
     Route::patch('/users/{user}/toggle-status', [AdminController::class, 'toggleStatus'])->name('users.toggle-status');
     Route::post('/users/{user}/update-role', [AdminController::class, 'updateRole'])->name('users.updateRole');
     Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
+    Route::patch('/admin/users/{user}/role', [App\Http\Controllers\AdminController::class, 'updateRole'])->name('admin.users.update-role');
 
     Route::patch('/polls/{poll}/toggle-active', [AdminController::class, 'togglePollStatus'])->name('polls.toggle-active');
 });

@@ -68,7 +68,16 @@
                                 </a>
                             </td>
                             <td class="px-6 py-4">
-                                <span class="px-2 py-1 rounded bg-gray-100 text-[10px] font-bold uppercase text-gray-600">{{ $user->role }}</span>
+                            <form action="{{ route('admin.users.update-role', $user) }}" method="POST">
+                                @csrf
+                                @method('PATCH')
+                                    <select name="role" onchange="this.form.submit()" 
+                                        class="bg-gray-50 border border-gray-200 text-gray-600 text-[10px] font-black uppercase tracking-widest rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-1.5 cursor-pointer hover:bg-white transition">
+                                        <option value="user" {{ $user->role == 'user' ? 'selected' : '' }}>User</option>
+                                        <option value="sub_admin" {{ $user->role == 'sub_admin' ? 'selected' : '' }}>Sub_Admin</option>
+                                        <option value="admin" {{ $user->role == 'admin' ? 'selected' : '' }}>Admin</option>
+                                        </select>
+                                    </form>
                             </td>
                             <td class="px-6 py-4 text-right">
                                 <form action="{{ route('admin.users.toggle-status', $user) }}" method="POST">
