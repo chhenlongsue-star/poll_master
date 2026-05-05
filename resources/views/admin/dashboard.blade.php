@@ -1,52 +1,115 @@
-<section>
-    <header>
-        <h2 class="text-lg font-bold text-gray-900 uppercase tracking-widest">
-            Profile Information
-        </h2>
-        <p class="mt-1 text-sm text-gray-600">
-            View your account details and profile picture synced from Google.
-        </p>
-    </header>
-
-    <div class="mt-6 space-y-6">
-        <!-- Profile Picture: Matches Dashboard/Admin Table Logic -->
-        <div class="flex items-center space-x-6">
-            <div class="shrink-0">
-                <img class="h-24 w-24 object-cover rounded-full border-4 border-indigo-50 shadow-md" 
-                     src="{{ Auth::user()->avatar ?? Auth::user()->google_avatar ?? asset('images/default-avatar.png') }}" 
-                     alt="Profile Photo" />
-            </div>
-            <div>
-                <span class="block text-sm font-black text-indigo-600 uppercase tracking-tighter">Syncing from Google</span>
-                <p class="text-xs text-gray-500">Your profile picture is managed by your Google Account.</p>
-            </div>
-        </div>
-
-        <!-- Read-Only Info -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <label class="block font-bold text-gray-700 text-xs uppercase">Name</label>
-                <div class="mt-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-gray-600 shadow-sm font-medium">
-                    {{ Auth::user()->name }}
+<x-app-layout>
+    <div class="py-12 bg-gray-100">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-white p-6 rounded-lg shadow border-b-4 border-blue-500 text-center">
+                    <p class="text-gray-500 text-xs font-bold uppercase">Total Users</p>
+                    <h3 class="text-2xl font-bold">{{ $totalUsers }}</h3>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow border-b-4 border-green-500 text-center">
+                    <p class="text-gray-500 text-xs font-bold uppercase">Active (5m)</p>
+                    <h3 class="text-2xl font-bold">{{ $activeUsersCount }}</h3>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow border-b-4 border-purple-500 text-center">
+                    <p class="text-gray-500 text-xs font-bold uppercase">Total Votes</p>
+                    <h3 class="text-2xl font-bold">{{ $totalVotes }}</h3>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow border-b-4 border-yellow-500 text-center">
+                    <p class="text-gray-500 text-xs font-bold uppercase">Total Polls</p>
+                    <h3 class="text-2xl font-bold">{{ $totalPolls }}</h3>
                 </div>
             </div>
 
-            <div>
-                <label class="block font-bold text-gray-700 text-xs uppercase">Email Address</label>
-                <div class="mt-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-gray-600 shadow-sm font-medium">
-                    {{ Auth::user()->email }}
+            <!-- Chart with Calendar -->
+            <div class="bg-white p-6 rounded-lg shadow mb-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold text-gray-700">Votes on {{ \Carbon\Carbon::parse($selectedDate)->format('M d, Y') }}</h3>
+                    <form action="{{ route('admin.dashboard') }}" method="GET" class="flex items-center gap-2">
+                        <span class="text-sm font-medium text-gray-500">Pick Date:</span>
+                        <input type="date" name="date" value="{{ $selectedDate }}" onchange="this.form.submit()" 
+                               class="rounded-md border-gray-300 text-sm shadow-sm focus:ring-indigo-500">
+                    </form>
                 </div>
+                <canvas id="voteChart" height="80"></canvas>
             </div>
-        </div>
 
-        <!-- Role Badge -->
-        <div>
-            <label class="block font-bold text-gray-700 text-xs uppercase">Account Role</label>
-            <div class="mt-2">
-                <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black uppercase bg-indigo-600 text-white shadow-sm">
-                    {{ Auth::user()->role }}
-                </span>
+            <!-- User Management Table with Search -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <h3 class="text-lg font-bold text-gray-700">User Management</h3>
+                    <form action="{{ route('admin.dashboard') }}" method="GET" class="w-full md:w-1/3 flex gap-2">
+                        <input type="text" name="search" value="{{ request('search') }}" 
+                               placeholder="Search name or email..." 
+                               class="w-full rounded-md border-gray-300 text-sm shadow-sm">
+                        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md text-xs font-bold">SEARCH</button>
+                    </form>
+                </div>
+
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-gray-50 text-gray-500 uppercase text-[10px] font-bold tracking-widest">
+                            <th class="px-6 py-4 text-left">User (Click name to view profile)</th>
+                            <th class="px-6 py-4 text-left">Role</th>
+                            <th class="px-6 py-4 text-right">Quick Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @foreach($users as $user)
+                        <tr class="hover:bg-indigo-50/50 transition">
+                            <td class="px-6 py-4">
+                                <a href="{{ route('admin.users.show', $user) }}" class="flex items-center group">
+                                    <img src="{{ $user->avatar }}" class="h-8 w-8 rounded-full mr-3 border border-gray-200">
+                                    <div class="flex flex-col">
+                                        <span class="text-indigo-600 font-bold group-hover:underline">{{ $user->name }}</span>
+                                        <span class="text-gray-400 text-xs">{{ $user->email }}</span>
+                                    </div>
+                                </a>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 rounded bg-gray-100 text-[10px] font-bold uppercase text-gray-600">{{ $user->role }}</span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <form action="{{ route('admin.users.toggle-status', $user) }}" method="POST">
+                                    @csrf @method('PATCH')
+                                    <button class="text-[10px] font-black uppercase tracking-tighter {{ $user->is_banned ? 'text-green-500' : 'text-orange-500' }}">
+                                        {{ $user->is_banned ? 'Unblock' : 'Block' }}
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                <div class="px-6 py-4 bg-gray-50 border-t">
+                    {{ $users->links() }}
+                </div>
             </div>
         </div>
     </div>
-</section>
+
+    <!-- Chart Script -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('voteChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($votingData->pluck('hour')->map(fn($h) => $h.':00')) !!},
+                datasets: [{
+                    label: 'Votes Cast',
+                    data: {!! json_encode($votingData->pluck('aggregate')) !!},
+                    borderColor: '#4F46E5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+            }
+        });
+    </script>
+</x-app-layout>
