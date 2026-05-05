@@ -11,16 +11,17 @@
     <div class="mt-6 space-y-6">
         <!-- Google Profile Picture Display Only -->
         <div class="flex items-center space-x-6">
-            <div class="shrink-0">
-                <img class="h-24 w-24 object-cover rounded-full border-4 border-indigo-50 shadow-md" 
-                     src="{{ Auth::user()->google_avatar ?? asset('images/default-avatar.png') }}" 
-                     alt="Google Profile Photo" />
-            </div>
-            <div>
-                <span class="block text-sm font-black text-indigo-600 uppercase tracking-tighter">Syncing from Google</span>
-                <p class="text-xs text-gray-500">Your profile picture is managed by your Google Account.</p>
-            </div>
-        </div>
+    <div class="shrink-0">
+        {{-- Use Auth::user() directly to ensure the data is always available --}}
+        <img class="h-24 w-24 object-cover rounded-full border-4 border-indigo-50 shadow-md" 
+             src="{{ Auth::user()->avatar ?? Auth::user()->google_avatar ?? asset('images/default-avatar.png') }}" 
+             alt="Profile Photo" />
+    </div>
+    <div>
+        <span class="block text-sm font-black text-indigo-600 uppercase tracking-tighter">Syncing from Google</span>
+        <p class="text-xs text-gray-500">Your profile picture is managed by your Google Account.</p>
+    </div>
+</div>
 
         <!-- Read-Only Info -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
