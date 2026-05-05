@@ -25,19 +25,27 @@
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-lg shadow mb-8">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-lg font-bold text-gray-700">
-                        Votes on {{ \Carbon\Carbon::parse($selectedDate)->format('M d, Y') }}
-                    </h3>
-                    <form action="{{ route('admin.dashboard') }}" method="GET" class="flex items-center gap-2">
-                        <span class="text-sm font-medium text-gray-500">Pick Date:</span>
-                        <input type="date" name="date" value="{{ $selectedDate }}" onchange="this.form.submit()" 
-                               class="rounded-md border-gray-300 text-sm shadow-sm focus:ring-indigo-500">
-                    </form>
-                </div>
-                <canvas id="voteChart" height="80"></canvas>
-            </div>
+           <div class="bg-white p-6 rounded-lg shadow mb-8">
+
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="text-lg font-bold text-gray-700">Analytics Overview</h3>
+
+        <div class="flex gap-2">
+            <a href="{{ route('admin.dashboard', ['range' => 7]) }}"
+               class="px-3 py-1 text-xs rounded {{ $range == 7 ? 'bg-indigo-600 text-white' : 'bg-gray-200' }}">
+                7 Days
+            </a>
+
+            <a href="{{ route('admin.dashboard', ['range' => 30]) }}"
+               class="px-3 py-1 text-xs rounded {{ $range == 30 ? 'bg-indigo-600 text-white' : 'bg-gray-200' }}">
+                30 Days
+            </a>
+        </div>
+    </div>
+
+    <canvas id="voteChart" height="90"></canvas>
+</div>
+
 
             <div class="bg-white shadow rounded-lg overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -128,30 +136,63 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const ctx = document.getElementById('voteChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: {!! json_encode($votingData->pluck('hour')->map(fn($h) => $h+':00')) !!},
-                datasets: [{
-                    label: 'Votes Cast',
-                    data: {!! json_encode($votingData->pluck('aggregate')) !!},
+
+<script>
+    const labels = {!! json_encode($dates) !!};
+
+    const votes = {!! json_encode($votes) !!};
+    const users = {!! json_encode($usersData) !!};
+    const polls = {!! json_encode($pollsData) !!};
+
+    new Chart(document.getElementById('voteChart'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Votes',
+                    data: votes,
                     borderColor: '#4F46E5',
-                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                    fill: true,
+                    backgroundColor: 'transparent',
                     tension: 0.4
-                }]
+                },
+                {
+                    label: 'New Users',
+                    data: users,
+                    borderColor: '#10B981',
+                    backgroundColor: 'transparent',
+                    tension: 0.4
+                },
+                {
+                    label: 'New Polls',
+                    data: polls,
+                    borderColor: '#F59E0B',
+                    backgroundColor: 'transparent',
+                    tension: 0.4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                }
             },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { stepSize: 1 }
-                    }
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
             }
-        });
-    </script>
+        }
+    });
+</script>
 </x-app-layout>

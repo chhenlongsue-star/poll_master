@@ -13,37 +13,65 @@ use Illuminate\Support\Facades\Auth;
 class AdminController extends Controller
 {
     public function index(Request $request)
-    {
-        $selectedDate = $request->input('date', now()->format('Y-m-d'));
+{
+    $range = $request->input('range', 7);
 
-        $votingData = Vote::whereDate('created_at', $selectedDate)
-            ->selectRaw('EXTRACT(HOUR FROM created_at) as hour, count(*) as aggregate')
-            ->groupBy('hour')
-            ->orderBy('hour', 'ASC')
-            ->get();
+    $startDate = now()->subDays($range - 1)->startOfDay();
+    $endDate = now()->endOfDay();
 
-        $search = $request->input('search');
+    $voteRaw = Vote::whereBetween('created_at', [$startDate, $endDate])
+        ->selectRaw('DATE(created_at) as date, count(*) as total')
+        ->groupBy('date')
+        ->pluck('total', 'date');
 
-        $users = User::when($search, function($query) use ($search) {
-            $query->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
-        })->latest()->paginate(10)->withQueryString();
+    $userRaw = User::whereBetween('created_at', [$startDate, $endDate])
+        ->selectRaw('DATE(created_at) as date, count(*) as total')
+        ->groupBy('date')
+        ->pluck('total', 'date');
 
-        $totalUsers = User::count();
-        $totalVotes = Vote::count();
-        $totalPolls = Poll::count();
-        $activeUsersCount = User::where('last_seen_at', '>=', now()->subMinutes(5))->count();
+    $pollRaw = Poll::whereBetween('created_at', [$startDate, $endDate])
+        ->selectRaw('DATE(created_at) as date, count(*) as total')
+        ->groupBy('date')
+        ->pluck('total', 'date');
 
-        return view('admin.dashboard', compact(
-            'totalUsers', 
-            'totalVotes', 
-            'totalPolls',
-            'activeUsersCount',
-            'votingData',
-            'users',
-            'selectedDate'
-        ));
+    $dates = [];
+    $votes = [];
+    $usersData = [];
+    $pollsData = [];
+
+    $current = $startDate->copy();
+
+    while ($current <= $endDate) {
+        $date = $current->format('Y-m-d');
+
+        $dates[] = $date;
+        $votes[] = $voteRaw[$date] ?? 0;
+        $usersData[] = $userRaw[$date] ?? 0;
+        $pollsData[] = $pollRaw[$date] ?? 0;
+
+        $current->addDay();
     }
+
+    $search = $request->input('search');
+
+    $users = User::when($search, function($query) use ($search) {
+        $query->where('name', 'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%");
+    })->latest()->paginate(10)->withQueryString();
+
+    return view('admin.dashboard', [
+        'dates' => $dates,
+        'votes' => $votes,
+        'usersData' => $usersData,
+        'pollsData' => $pollsData,
+        'users' => $users,
+        'range' => $range,
+        'totalUsers' => User::count(),
+        'totalVotes' => Vote::count(),
+        'totalPolls' => Poll::count(),
+        'activeUsersCount' => User::where('last_seen_at', '>=', now()->subMinutes(5))->count(),
+    ]);
+}
 
     public function showUser(User $user)
     {
