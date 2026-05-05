@@ -98,7 +98,7 @@
                                         <form action="{{ route('admin.users.toggle-status', $user) }}" method="POST" class="inline">
                                             @csrf @method('PATCH')
                                             <button type="submit" class="text-xs font-bold uppercase tracking-wider {{ $user->is_banned ? 'text-green-500 hover:text-green-700' : 'text-orange-500 hover:text-orange-700' }}">
-                                                {{ $user->is_banned ? 'Unban User' : 'Ban User' }}
+                                                {{ $user->is_banned ? 'Unblock' : 'Block' }}
                                             </button>
                                         </form>
 
