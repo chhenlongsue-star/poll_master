@@ -23,6 +23,7 @@ class AdminController extends Controller
             ->get();
 
         $search = $request->input('search');
+
         $users = User::when($search, function($query) use ($search) {
             $query->where('name', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%");
@@ -47,16 +48,17 @@ class AdminController extends Controller
     public function showUser(User $user)
     {
         $polls = $user->polls()->withCount('votes')->latest()->paginate(10);
-        
         return view('admin.users.show', compact('user', 'polls'));
     }
 
     public function toggleStatus(User $user)
     {
         $currentUser = Auth::user();
+
         if ($currentUser->role === 'sub_admin' && $user->role === 'admin') {
             return back()->with('error', 'Security Alert: Sub-Admins cannot modify Admin accounts.');
         }
+
         if ($currentUser->id === $user->id) {
             return back()->with('error', 'You cannot deactivate your own account.');
         }
@@ -64,7 +66,7 @@ class AdminController extends Controller
         $user->is_banned = !$user->is_banned;
         $user->save();
 
-        return back()->with('success', "User status updated successfully.");
+        return back()->with('success', 'User status updated successfully.');
     }
 
     public function togglePollStatus(Poll $poll)
@@ -77,39 +79,62 @@ class AdminController extends Controller
 
     public function updateRole(Request $request, User $user)
     {
-        if (Auth::user()->role !== 'admin') {
-            return back()->with('error', 'Unauthorized action.');
-        }
+        $currentUser = Auth::user();
 
-        $request->validate(['role' => 'required|in:user,sub_admin,admin']);
+        $request->validate([
+            'role' => 'required|in:user,sub_admin,admin'
+        ]);
 
-        if (Auth::id() === $user->id) {
+        if ($currentUser->id === $user->id) {
             return back()->with('error', 'You cannot change your own role.');
         }
 
-        $user->update(['role' => $request->role]);
-        return back()->with('success', "Role updated successfully.");
+        if ($currentUser->role === 'admin') {
+            $user->update(['role' => $request->role]);
+            return back()->with('success', 'Role updated successfully.');
+        }
+
+        if ($currentUser->role === 'sub_admin') {
+            if ($user->role === 'admin') {
+                return back()->with('error', 'Cannot modify admin.');
+            }
+
+            if ($user->role === 'user' && $request->role === 'sub_admin') {
+                $user->update(['role' => 'sub_admin']);
+                return back()->with('success', 'User promoted to sub_admin.');
+            }
+
+            return back()->with('error', 'Unauthorized role change.');
+        }
+
+        return back()->with('error', 'Unauthorized action.');
     }
 
     public function destroyUser(User $user)
     {
-        if (Auth::user()->role !== 'admin') {
+        $currentUser = Auth::user();
+
+        if ($currentUser->role !== 'admin') {
             return back()->with('error', 'Unauthorized action.');
         }
-        if (Auth::id() === $user->id) {
+
+        if ($currentUser->id === $user->id) {
             return back()->with('error', 'You cannot delete your own account.');
         }
 
         $user->delete();
+
         return redirect()->route('admin.dashboard')->with('success', 'User deleted successfully.');
     }
 
     public function managePolls(Request $request)
     {
         $query = Poll::with(['user', 'category'])->withCount('votes');
+
         if ($request->filled('search')) {
             $query->where('title', 'like', '%' . $request->search . '%');
         }
+
         if ($request->filled('category')) {
             $query->where('category_id', $request->category);
         }

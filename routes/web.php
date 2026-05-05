@@ -19,9 +19,11 @@ Route::get('/', function () {
     return view('welcome', compact('trendingPolls'));
 });
 
+// Google Auth
 Route::get('auth/google', [GoogleAuth::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('auth/google/callback', [GoogleAuth::class, 'handleGoogleCallback']);
 
+// User Routes
 Route::middleware(['auth', 'verified'])->group(function () {
     
     Route::get('/dashboard', [PollController::class, 'index'])->name('dashboard');
@@ -44,6 +46,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
+// Admin & Sub-Admin Routes
 Route::middleware(['auth', 'role:admin,sub_admin'])->prefix('admin')->name('admin.')->group(function () {
     
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
@@ -53,9 +56,10 @@ Route::middleware(['auth', 'role:admin,sub_admin'])->prefix('admin')->name('admi
 
     Route::get('/users/{user}', [AdminController::class, 'showUser'])->name('users.show');
     Route::patch('/users/{user}/toggle-status', [AdminController::class, 'toggleStatus'])->name('users.toggle-status');
-    Route::post('/users/{user}/update-role', [AdminController::class, 'updateRole'])->name('users.updateRole');
     Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
-    Route::patch('/admin/users/{user}/role', [App\Http\Controllers\AdminController::class, 'updateRole'])->name('admin.users.update-role');
+    
+    // This is the specific route that was causing the error
+    Route::patch('/users/{user}/role', [AdminController::class, 'updateRole'])->name('users.update-role');
 
     Route::patch('/polls/{poll}/toggle-active', [AdminController::class, 'togglePollStatus'])->name('polls.toggle-active');
 });

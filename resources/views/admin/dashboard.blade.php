@@ -1,8 +1,11 @@
 <x-app-layout>
     <div class="py-12 bg-gray-100">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+
+            @php
+                $currentUser = auth()->user();
+            @endphp
             
-            <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
                 <div class="bg-white p-6 rounded-lg shadow border-b-4 border-blue-500 text-center">
                     <p class="text-gray-500 text-xs font-bold uppercase">Total Users</p>
@@ -22,10 +25,11 @@
                 </div>
             </div>
 
-            <!-- Chart with Calendar -->
             <div class="bg-white p-6 rounded-lg shadow mb-8">
                 <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-lg font-bold text-gray-700">Votes on {{ \Carbon\Carbon::parse($selectedDate)->format('M d, Y') }}</h3>
+                    <h3 class="text-lg font-bold text-gray-700">
+                        Votes on {{ \Carbon\Carbon::parse($selectedDate)->format('M d, Y') }}
+                    </h3>
                     <form action="{{ route('admin.dashboard') }}" method="GET" class="flex items-center gap-2">
                         <span class="text-sm font-medium text-gray-500">Pick Date:</span>
                         <input type="date" name="date" value="{{ $selectedDate }}" onchange="this.form.submit()" 
@@ -35,7 +39,6 @@
                 <canvas id="voteChart" height="80"></canvas>
             </div>
 
-            <!-- User Management Table with Search -->
             <div class="bg-white shadow rounded-lg overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
                     <h3 class="text-lg font-bold text-gray-700">User Management</h3>
@@ -50,7 +53,7 @@
                 <table class="min-w-full">
                     <thead>
                         <tr class="bg-gray-50 text-gray-500 uppercase text-[10px] font-bold tracking-widest">
-                            <th class="px-6 py-4 text-left">User (Click name to view profile)</th>
+                            <th class="px-6 py-4 text-left">User</th>
                             <th class="px-6 py-4 text-left">Role</th>
                             <th class="px-6 py-4 text-right">Quick Actions</th>
                         </tr>
@@ -67,30 +70,56 @@
                                     </div>
                                 </a>
                             </td>
+
                             <td class="px-6 py-4">
-                            <form action="{{ route('admin.users.update-role', $user) }}" method="POST">
-                                @csrf
-                                @method('PATCH')
+                                <form action="{{ route('admin.users.update-role', $user) }}" method="POST">
+                                    @csrf
+                                    @method('PATCH')
+
                                     <select name="role" onchange="this.form.submit()" 
-                                        class="bg-gray-50 border border-gray-200 text-gray-600 text-[10px] font-black uppercase tracking-widest rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-1.5 cursor-pointer hover:bg-white transition">
-                                        <option value="user" {{ $user->role == 'user' ? 'selected' : '' }}>User</option>
-                                        <option value="sub_admin" {{ $user->role == 'sub_admin' ? 'selected' : '' }}>Sub_Admin</option>
-                                        <option value="admin" {{ $user->role == 'admin' ? 'selected' : '' }}>Admin</option>
-                                        </select>
-                                    </form>
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <form action="{{ route('admin.users.toggle-status', $user) }}" method="POST">
-                                    @csrf @method('PATCH')
-                                    <button class="text-[10px] font-black uppercase tracking-tighter {{ $user->is_banned ? 'text-green-500' : 'text-orange-500' }}">
-                                        {{ $user->is_banned ? 'Unblock' : 'Block' }}
-                                    </button>
+                                        class="bg-gray-50 border border-gray-200 text-gray-600 text-[10px] font-black uppercase tracking-widest rounded-lg p-1.5 cursor-pointer hover:bg-white transition">
+
+                                        <option value="user"
+                                            {{ $user->role == 'user' ? 'selected' : '' }}
+                                            @if($currentUser->role === 'sub_admin' && $user->role !== 'user') disabled @endif>
+                                            User
+                                        </option>
+
+                                        <option value="sub_admin"
+                                            {{ $user->role == 'sub_admin' ? 'selected' : '' }}
+                                            @if($currentUser->role === 'sub_admin' && $user->role !== 'user') disabled @endif>
+                                            Sub_Admin
+                                        </option>
+
+                                        @if($currentUser->role === 'admin')
+                                            <option value="admin"
+                                                {{ $user->role == 'admin' ? 'selected' : '' }}>
+                                                Admin
+                                            </option>
+                                        @endif
+
+                                    </select>
                                 </form>
+                            </td>
+
+                            <td class="px-6 py-4 text-right">
+                                @if(!($currentUser->role === 'sub_admin' && $user->role === 'admin'))
+                                    <form action="{{ route('admin.users.toggle-status', $user) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button class="text-[10px] font-black uppercase tracking-tighter {{ $user->is_banned ? 'text-green-500' : 'text-orange-500' }}">
+                                            {{ $user->is_banned ? 'Unblock' : 'Block' }}
+                                        </button>
+                                    </form>
+                                @else
+                                    <span class="text-gray-300 text-xs">Protected</span>
+                                @endif
                             </td>
                         </tr>
                         @endforeach
                     </tbody>
                 </table>
+
                 <div class="px-6 py-4 bg-gray-50 border-t">
                     {{ $users->links() }}
                 </div>
@@ -98,14 +127,13 @@
         </div>
     </div>
 
-    <!-- Chart Script -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const ctx = document.getElementById('voteChart').getContext('2d');
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: {!! json_encode($votingData->pluck('hour')->map(fn($h) => $h.':00')) !!},
+                labels: {!! json_encode($votingData->pluck('hour')->map(fn($h) => $h+':00')) !!},
                 datasets: [{
                     label: 'Votes Cast',
                     data: {!! json_encode($votingData->pluck('aggregate')) !!},
@@ -117,7 +145,12 @@
             },
             options: {
                 responsive: true,
-                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    }
+                }
             }
         });
     </script>
