@@ -16,8 +16,8 @@ class AdminController extends Controller
     {
         $selectedDate = $request->input('date', now()->format('Y-m-d'));
 
-        $votingData = Vote::whereDate('created_at', $selectedDate)
-            ->selectRaw('HOUR(created_at) as hour, count(*) as aggregate')
+        $$votingData = Vote::whereDate('created_at', $selectedDate)
+            ->selectRaw('EXTRACT(HOUR FROM created_at) as hour, count(*) as aggregate')
             ->groupBy('hour')
             ->orderBy('hour', 'ASC')
             ->get();
