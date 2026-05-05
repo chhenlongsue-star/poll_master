@@ -1,83 +1,51 @@
 <section>
     <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Profile Information') }}
+        <h2 class="text-lg font-bold text-gray-900 uppercase tracking-widest">
+            Profile Information
         </h2>
-
         <p class="mt-1 text-sm text-gray-600">
-            {{ __("Update your account's profile information, avatar, and email address.") }}
+            View your account details and profile picture synced from Google.
         </p>
     </header>
 
-    <form id="send-verification" method="post" action="{{ route('verification.send') }}">
-        @csrf
-    </form>
-
-    <form method="post" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="mt-6 space-y-6">
-        @csrf
-        @method('patch')
-
-        <div>
-            <x-input-label for="avatar" :value="__('Avatar')" />
-            <div class="flex items-center space-x-6 mt-2">
-                <img src="{{ auth()->user()->avatar ? asset('storage/' . auth()->user()->avatar) : asset('images/default-avatar.png') }}" 
-                     alt="Avatar" 
-                     class="w-16 h-16 rounded-full object-cover border-2 border-gray-200">
-                
-                <input id="avatar" name="avatar" type="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+    <div class="mt-6 space-y-6">
+        <!-- Google Profile Picture Display Only -->
+        <div class="flex items-center space-x-6">
+            <div class="shrink-0">
+                <img class="h-24 w-24 object-cover rounded-full border-4 border-indigo-50 shadow-md" 
+                     src="{{ Auth::user()->google_avatar ?? asset('images/default-avatar.png') }}" 
+                     alt="Google Profile Photo" />
             </div>
-            <x-input-error class="mt-2" :messages="$errors->get('avatar')" />
+            <div>
+                <span class="block text-sm font-black text-indigo-600 uppercase tracking-tighter">Syncing from Google</span>
+                <p class="text-xs text-gray-500">Your profile picture is managed by your Google Account.</p>
+            </div>
         </div>
 
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
-            <x-input-error class="mt-2" :messages="$errors->get('name')" />
-        </div>
-
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
-            <x-input-error class="mt-2" :messages="$errors->get('email')" />
-
-            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
-                <div>
-                    <p class="text-sm mt-2 text-gray-800">
-                        {{ __('Your email address is unverified.') }}
-
-                        <button form="send-verification" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            {{ __('Click here to re-send the verification email.') }}
-                        </button>
-                    </p>
-
-                    @if (session('status') === 'verification-link-sent')
-                        <p class="mt-2 font-medium text-sm text-green-600">
-                            {{ __('A new verification link has been sent to your email address.') }}
-                        </p>
-                    @endif
+        <!-- Read-Only Info -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block font-bold text-gray-700 text-xs uppercase">Name</label>
+                <div class="mt-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-gray-600 shadow-sm">
+                    {{ Auth::user()->name }}
                 </div>
-            @endif
-        </div>
+            </div>
 
-        <div>
-            <x-input-label :value="__('Role')" />
-            <div class="mt-1 p-2 bg-gray-100 rounded-md inline-block">
-                <span class="text-sm font-bold text-indigo-600 uppercase">{{ auth()->user()->role }}</span>
+            <div>
+                <label class="block font-bold text-gray-700 text-xs uppercase">Email Address</label>
+                <div class="mt-1 p-3 bg-gray-50 border border-gray-200 rounded-md text-gray-600 shadow-sm">
+                    {{ Auth::user()->email }}
+                </div>
             </div>
         </div>
 
-        <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
-
-            @if (session('status') === 'profile-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
-                >{{ __('Saved.') }}</p>
-            @endif
+        <div>
+            <label class="block font-bold text-gray-700 text-xs uppercase">Account Role</label>
+            <div class="mt-2">
+                <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black uppercase bg-indigo-600 text-white shadow-sm">
+                    {{ Auth::user()->role }}
+                </span>
+            </div>
         </div>
-    </form>
+    </div>
 </section>
