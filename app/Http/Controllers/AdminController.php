@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Poll;
 use App\Models\Vote;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -24,9 +25,6 @@ class AdminController extends Controller
             $endDate = now()->endOfDay();
         }
 
-        $previousStart = $startDate->copy()->subDays($startDate->diffInDays($endDate)+1);
-        $previousEnd = $startDate->copy()->subDay();
-
         $dates = [];
         $votes = [];
         $usersData = [];
@@ -43,7 +41,8 @@ class AdminController extends Controller
         $totalUsers = User::count();
         $totalVotes = Vote::count();
         $totalPolls = Poll::count();
-        $activeUsersCount = User::where('last_seen_at','>=',now()->subMinutes(5))->count();
+
+        $activeUsersCount = User::where('last_seen_at', '>=', now()->subMinutes(5))->count();
 
         $topUsers = User::withCount('polls')
             ->orderByDesc('polls_count')
@@ -60,30 +59,83 @@ class AdminController extends Controller
         $users = User::latest()->paginate(10);
 
         return view('admin.dashboard', compact(
-            'dates','votes','usersData','pollsData',
-            'totalUsers','totalVotes','totalPolls','activeUsersCount',
-            'topUsers','topPolls','recentActivities','users'
+            'dates',
+            'votes',
+            'usersData',
+            'pollsData',
+            'totalUsers',
+            'totalVotes',
+            'totalPolls',
+            'activeUsersCount',
+            'topUsers',
+            'topPolls',
+            'recentActivities',
+            'users'
         ));
+    }
+
+    public function managePolls(Request $request)
+    {
+        $query = Poll::with(['user', 'category'])->withCount('votes');
+
+        if ($request->filled('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+
+        $allPolls = $query->latest()->paginate(10);
+
+        $categories = Category::all();
+
+        return view('admin.manage-polls', compact('allPolls', 'categories'));
     }
 
     public function updateRole(Request $request, User $user)
     {
-        if (Auth::user()->role !== 'admin') {
+        $auth = Auth::user();
+
+        if ($auth->role === 'sub_admin') {
+
+            if ($user->role === 'admin') {
+                return back();
+            }
+
+            if ($request->role === 'admin') {
+                return back();
+            }
+
+            if (!in_array($request->role, ['user', 'sub_admin'])) {
+                return back();
+            }
+        }
+
+        if ($auth->role !== 'admin' && $auth->role !== 'sub_admin') {
             return back();
         }
 
-        $request->validate(['role'=>'required|in:user,sub_admin,admin']);
+        $request->validate([
+            'role' => 'required|in:user,sub_admin,admin'
+        ]);
 
-        if (Auth::id() === $user->id) return back();
+        if (Auth::id() === $user->id) {
+            return back();
+        }
 
-        $user->update(['role'=>$request->role]);
+        $user->update([
+            'role' => $request->role
+        ]);
 
         return back();
     }
 
     public function toggleStatus(User $user)
     {
-        if (Auth::user()->role === 'sub_admin' && $user->role === 'admin') {
+        $auth = Auth::user();
+
+        if ($auth->role === 'sub_admin' && $user->role === 'admin') {
             return back();
         }
 
