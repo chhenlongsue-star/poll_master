@@ -10,6 +10,9 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
+    /**
+     * Display the user's profile form.
+     */
     public function edit(Request $request): View
     {
         return view('profile.edit', [
@@ -17,16 +20,24 @@ class ProfileController extends Controller
         ]);
     }
 
+    /**
+     * Update the user's profile information.
+     */
     public function update(Request $request): RedirectResponse
     {
+        // Currently locked for this app as requested
         return Redirect::route('profile.edit')->with('status', 'profile-locked');
     }
 
+    /**
+     * Delete the user's account.
+     * Fix: Only validate password for non-Google users.
+     */
     public function destroy(Request $request): RedirectResponse
     {
         $user = $request->user();
 
-        // Only validate password if the user is NOT a Google user
+        // If the user didn't register via Google, they have a password to verify
         if (is_null($user->google_id)) {
             $request->validateWithBag('userDeletion', [
                 'password' => ['required', 'current_password'],

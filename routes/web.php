@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\GoogleAuthController as GoogleAuth;
 use App\Models\Poll;
 use Illuminate\Support\Facades\Route;
 
+// Public Welcome Page
 Route::get('/', function () {
     $trendingPolls = Poll::with(['category', 'options'])
         ->withCount('votes')
@@ -19,27 +20,28 @@ Route::get('/', function () {
     return view('welcome', compact('trendingPolls'));
 });
 
-// Google Auth
+// Google Authentication Routes
 Route::get('auth/google', [GoogleAuth::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('auth/google/callback', [GoogleAuth::class, 'handleGoogleCallback']);
 
-// User Routes
+// Authenticated User Routes
 Route::middleware(['auth', 'verified'])->group(function () {
     
     Route::get('/dashboard', [PollController::class, 'index'])->name('dashboard');
     Route::get('/my-content', [PollController::class, 'myContent'])->name('polls.my-content');
     Route::post('/polls/{poll}/favourite', [PollController::class, 'toggleFavourite'])->name('polls.favourite');
 
+    // Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // Poll Interactions
     Route::prefix('polls')->name('polls.')->group(function () {
         Route::get('/create', [PollController::class, 'create'])->name('create');
         Route::post('/', [PollController::class, 'store'])->name('store');
         Route::get('/{poll}', [PollController::class, 'show'])->name('show');
         Route::post('/{poll}/vote', [PollController::class, 'vote'])->name('vote');
-        
         Route::get('/{poll}/edit', [PollController::class, 'edit'])->name('edit');
         Route::put('/{poll}', [PollController::class, 'update'])->name('update');
         Route::delete('/{poll}', [PollController::class, 'destroy'])->name('destroy');
@@ -54,13 +56,13 @@ Route::middleware(['auth', 'role:admin,sub_admin'])->prefix('admin')->name('admi
     
     Route::resource('categories', CategoryController::class);
 
+    // User Management Routes
     Route::get('/users/{user}', [AdminController::class, 'showUser'])->name('users.show');
+    Route::patch('/users/{user}/role', [AdminController::class, 'updateRole'])->name('users.update-role');
     Route::patch('/users/{user}/toggle-status', [AdminController::class, 'toggleStatus'])->name('users.toggle-status');
     Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
-    
-    // This is the specific route that was causing the error
-    Route::patch('/users/{user}/role', [AdminController::class, 'updateRole'])->name('users.update-role');
 
+    // Poll Admin Action
     Route::patch('/polls/{poll}/toggle-active', [AdminController::class, 'togglePollStatus'])->name('polls.toggle-active');
 });
 
