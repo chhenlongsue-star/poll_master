@@ -1,29 +1,29 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Poll Master | Create & Vote</title>
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
+        <link href="https://fonts.bunny.net/css?family=figtree:400,600,900&display=swap" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="antialiased bg-gray-50">
-        <nav class="bg-white border-b border-gray-100">
+    <body class="antialiased bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+        
+        {{-- NAVIGATION --}}
+        <nav class="sticky top-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16">
+                <div class="flex justify-between h-20">
                     <div class="flex items-center">
-                        <span class="text-2xl font-bold text-indigo-600 italic">Poll Master</span>
+                        <span class="text-2xl font-black text-indigo-600 dark:text-indigo-400 italic uppercase tracking-tighter">Poll Master</span>
                     </div>
-                    <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-8">
                         @if (Route::has('login'))
                             @auth
-                                <a href="{{ url('/dashboard') }}" class="text-sm text-gray-700 font-semibold hover:text-indigo-600 transition">Dashboard</a>
+                                <a href="{{ url('/dashboard') }}" class="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-indigo-600 transition">Dashboard</a>
                             @else
-                                <a href="{{ route('login') }}" class="text-sm text-gray-700 font-semibold hover:text-indigo-600 transition">Log in</a>
-                                {{-- @if (Route::has('register'))
-                                    <a href="{{ route('register') }}" class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition">Register</a>
-                                @endif --}}
+                                <a href="{{ route('login') }}" class="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-indigo-600 transition">Log in</a>
+                                <a href="{{ route('register') }}" class="bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition shadow-lg shadow-indigo-500/20">Sign Up</a>
                             @endauth
                         @endif
                     </div>
@@ -32,37 +32,46 @@
         </nav>
 
         <main>
-            <div class="relative pt-16 pb-20 overflow-hidden bg-white">
+            {{-- HERO SECTION --}}
+            <div class="relative pt-20 pb-32 overflow-hidden">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="lg:grid lg:grid-cols-12 lg:gap-8">
-                        <div class="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left">
-                            <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-                                <span class="block">The simplest way to</span>
-                                <span class="block text-indigo-600">collect opinions.</span>
+                    <div class="lg:grid lg:grid-cols-12 lg:gap-12 items-center">
+                        <div class="sm:text-center lg:col-span-6 lg:text-left">
+                            <h1 class="text-5xl sm:text-7xl font-black tracking-tighter uppercase italic leading-[0.9]">
+                                <span class="block text-gray-900 dark:text-white">Collect</span>
+                                <span class="block text-indigo-600">Opinions</span>
+                                <span class="block text-gray-900 dark:text-white text-3xl sm:text-4xl mt-2 italic tracking-normal font-normal">Fast, Secure, Real-time.</span>
                             </h1>
-                            <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-                                Create interactive polls, share them with your community, and visualize results in real-time. Whether it's for school projects or quick decisions, Poll Master has you covered.
+                            <p class="mt-6 text-lg text-gray-500 dark:text-gray-400 font-medium max-w-lg leading-relaxed">
+                                Create interactive polls in seconds and visualize the data as it happens. Built for communities that value clear, spam-free feedback.
                             </p>
-                            <div class="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left">
-                                <a href="{{ route('login') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 transition">
-                                    Get Started for Free
+                            <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                                <a href="{{ route('register') }}" class="px-10 py-5 bg-indigo-600 text-white text-xs font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-indigo-700 transition shadow-2xl shadow-indigo-500/40 transform hover:-translate-y-1">
+                                    Get Started
+                                </a>
+                                <a href="#trending" class="px-10 py-5 bg-gray-100 dark:bg-gray-900 text-gray-600 dark:text-gray-300 text-xs font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-gray-200 dark:hover:bg-gray-800 transition">
+                                    Explore Polls
                                 </a>
                             </div>
                         </div>
-                        <div class="mt-12 relative sm:max-w-lg sm:mx-auto lg:mt-0 lg:max-w-none lg:mx-0 lg:col-span-6 lg:flex lg:items-center">
-                            <div class="bg-indigo-100 rounded-2xl p-8 shadow-inner w-full">
-                                <div class="space-y-4">
-                                    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-indigo-500">
-                                        <div class="h-2 w-24 bg-gray-200 rounded mb-2"></div>
-                                        <div class="h-4 w-48 bg-gray-300 rounded"></div>
-                                    </div>
-                                    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500 opacity-75">
-                                        <div class="h-2 w-24 bg-gray-200 rounded mb-2"></div>
-                                        <div class="h-4 w-32 bg-gray-300 rounded"></div>
-                                    </div>
-                                    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-yellow-500 opacity-50">
-                                        <div class="h-2 w-24 bg-gray-200 rounded mb-2"></div>
-                                        <div class="h-4 w-40 bg-gray-300 rounded"></div>
+
+                        {{-- ABSTRACT MOCKUP --}}
+                        <div class="mt-16 lg:mt-0 lg:col-span-6">
+                            <div class="relative">
+                                <div class="absolute -inset-4 bg-indigo-500/10 dark:bg-indigo-500/5 rounded-[3rem] blur-3xl"></div>
+                                <div class="relative bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-8 rounded-[2.5rem] shadow-2xl">
+                                    <div class="space-y-6">
+                                        <div class="h-12 w-3/4 bg-gray-50 dark:bg-gray-800 rounded-2xl animate-pulse"></div>
+                                        <div class="space-y-3">
+                                            <div class="h-16 w-full border-2 border-indigo-500/30 rounded-2xl flex items-center px-6">
+                                                <div class="h-3 w-3 rounded-full bg-indigo-500 mr-4"></div>
+                                                <div class="h-3 w-32 bg-gray-100 dark:bg-gray-800 rounded-full"></div>
+                                            </div>
+                                            <div class="h-16 w-full border-2 border-transparent bg-gray-50 dark:bg-gray-800/50 rounded-2xl flex items-center px-6">
+                                                <div class="h-3 w-3 rounded-full border-2 border-gray-300 dark:border-gray-600 mr-4"></div>
+                                                <div class="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -71,79 +80,84 @@
                 </div>
             </div>
 
-            <div class="bg-gray-50 py-16 border-t border-b border-gray-100">
+            {{-- TRENDING SECTION --}}
+            <div id="trending" class="bg-gray-50 dark:bg-gray-900/50 py-24 border-t border-gray-100 dark:border-gray-800">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="text-center mb-12">
-                        <h2 class="text-3xl font-extrabold text-gray-900 flex items-center justify-center">
-                            Trending Polls <span class="ml-2">🔥</span>
-                        </h2>
-                        <p class="mt-2 text-gray-600">See what the community is deciding right now.</p>
+                    <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-4">
+                        <div>
+                            <h2 class="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">Trending Now</h2>
+                            <p class="text-[10px] text-indigo-600 dark:text-indigo-400 font-black uppercase tracking-[0.3em] mt-2">Active decisions in the community</p>
+                        </div>
+                        <a href="{{ route('login') }}" class="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-indigo-600 transition">View All <i class="fas fa-arrow-right ml-1"></i></a>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                         @forelse($trendingPolls as $poll)
-                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition flex flex-col">
-                                <div class="p-6 flex-1">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <span class="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-[10px] font-bold uppercase rounded border border-indigo-100">
+                            <div class="group bg-white dark:bg-gray-800 rounded-[2rem] shadow-xl shadow-gray-200/50 dark:shadow-none border border-transparent dark:border-gray-700 overflow-hidden hover:-translate-y-2 transition-all duration-300">
+                                <div class="p-8">
+                                    <div class="flex justify-between items-center mb-6">
+                                        <span class="px-3 py-1 bg-gray-100 dark:bg-gray-900 text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 rounded-lg">
                                             {{ $poll->category->name ?? 'General' }}
                                         </span>
-                                        <span class="text-gray-400 text-xs font-medium">{{ $poll->votes_count }} votes</span>
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                            <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">{{ number_format($poll->votes_count) }} Votes</span>
+                                        </div>
                                     </div>
-                                    <h3 class="text-lg font-bold text-gray-900 mb-2 leading-tight">{{ $poll->title }}</h3>
-                                    <p class="text-sm text-gray-500 line-clamp-2 mb-4">{{ $poll->description }}</p>
+                                    <h3 class="text-xl font-black text-gray-900 dark:text-white mb-4 uppercase tracking-tighter italic leading-tight group-hover:text-indigo-600 transition">{{ $poll->title }}</h3>
                                     
                                     <div class="space-y-2">
                                         @foreach($poll->options->take(2) as $option)
-                                            <div class="w-full bg-gray-50 border border-gray-100 rounded p-2 text-xs text-gray-600 flex justify-between">
-                                                <span>{{ Str::limit($option->option_text, 30) }}</span>
-                                                <span class="text-gray-300">○</span>
+                                            <div class="w-full bg-gray-50 dark:bg-gray-900/50 rounded-xl p-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-tight flex justify-between border border-transparent dark:border-gray-800">
+                                                <span>{{ Str::limit($option->option_text, 25) }}</span>
+                                                <span class="text-indigo-500 opacity-0 group-hover:opacity-100 transition">○</span>
                                             </div>
                                         @endforeach
                                     </div>
                                 </div>
-                                <div class="p-4 bg-gray-50 border-t border-gray-100 mt-auto">
-                                    <a href="{{ route('login') }}" class="block text-center w-full py-2 text-sm font-bold text-indigo-600 hover:text-indigo-800 transition">
-                                        Join the Vote →
+                                <div class="px-8 py-5 bg-gray-50 dark:bg-gray-900/80 border-t border-gray-100 dark:border-gray-800">
+                                    <a href="{{ route('login') }}" class="block text-center w-full text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
+                                        Join Controversy →
                                     </a>
                                 </div>
                             </div>
                         @empty
-                            <div class="col-span-full text-center py-10">
-                                <p class="text-gray-400 italic">No trending polls available yet. Be the first to create one!</p>
+                            <div class="col-span-full text-center py-20 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-[2rem]">
+                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">No pulse detected. Start the first poll.</p>
                             </div>
                         @endforelse
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white py-16">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <h2 class="text-3xl font-extrabold text-gray-900">Why use Poll Master?</h2>
-                    <div class="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-3">
-                        <div class="p-6 border border-gray-100 rounded-xl hover:shadow-md transition">
-                            <div class="text-indigo-600 text-3xl mb-4">⚡</div>
-                            <h3 class="text-lg font-bold text-gray-900">Fast Creation</h3>
-                            <p class="text-gray-500 text-sm mt-2">Set up your question and options in seconds.</p>
+            {{-- FEATURES --}}
+            <div class="bg-white dark:bg-gray-950 py-32">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-1 gap-12 sm:grid-cols-3">
+                        <div class="relative p-8 bg-indigo-50 dark:bg-gray-900 rounded-[2rem] border border-transparent dark:border-gray-800 group hover:border-indigo-500 transition-colors">
+                            <div class="text-4xl mb-6 transform group-hover:scale-110 transition">⚡</div>
+                            <h3 class="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">Instant Launch</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 font-medium leading-relaxed">Questions to answers in 30 seconds. No bloated setup forms.</p>
                         </div>
-                        <div class="p-6 border border-gray-100 rounded-xl hover:shadow-md transition">
-                            <div class="text-indigo-600 text-3xl mb-4">📊</div>
-                            <h3 class="text-lg font-bold text-gray-900">Live Results</h3>
-                            <p class="text-gray-500 text-sm mt-2">Watch the votes roll in with real-time counters.</p>
+                        <div class="relative p-8 bg-gray-50 dark:bg-gray-900 rounded-[2rem] border border-transparent dark:border-gray-800 group hover:border-indigo-500 transition-colors">
+                            <div class="text-4xl mb-6 transform group-hover:scale-110 transition">📊</div>
+                            <h3 class="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">Dynamic Feed</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 font-medium leading-relaxed">Watch the consensus shift in real-time with automated data viz.</p>
                         </div>
-                        <div class="p-6 border border-gray-100 rounded-xl hover:shadow-md transition">
-                            <div class="text-indigo-600 text-3xl mb-4">🔒</div>
-                            <h3 class="text-lg font-bold text-gray-900">Secure Voting</h3>
-                            <p class="text-gray-500 text-sm mt-2">One user, one vote. No spam, just real data.</p>
+                        <div class="relative p-8 bg-gray-50 dark:bg-gray-900 rounded-[2rem] border border-transparent dark:border-gray-800 group hover:border-indigo-500 transition-colors">
+                            <div class="text-4xl mb-6 transform group-hover:scale-110 transition">🔒</div>
+                            <h3 class="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">Integrity First</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 font-medium leading-relaxed">Unique session tracking prevents bot spam and double voting.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </main>
 
-        <footer class="bg-gray-50 border-t border-gray-200 py-12">
+        <footer class="bg-white dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800 py-16">
             <div class="max-w-7xl mx-auto px-4 text-center">
-                <p class="text-gray-400 text-sm">&copy; 2026 Poll Master Project. Built with Laravel 12.</p>
+                <div class="text-2xl font-black text-gray-300 dark:text-gray-800 uppercase italic tracking-tighter mb-6">Poll Master</div>
+                <p class="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest">&copy; 2026 Engine Core. Built with Laravel 12 & Tailwind CSS.</p>
             </div>
         </footer>
     </body>

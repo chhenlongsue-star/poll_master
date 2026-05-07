@@ -13,21 +13,34 @@ use Illuminate\Support\Facades\Auth;
 class AdminController extends Controller
 {
     /**
-     * Display the main admin dashboard with stats and user management.
+     * Display the main admin dashboard with stats, charts, and user management.
      */
     public function index(Request $request)
     {
-        $selectedDate = $request->input('date', now()->format('Y-m-d'));
+        // 1. Basic KPI Stats
+        $totalUsers = User::count();
+        $totalVotes = Vote::count();
+        $totalPolls = Poll::count();
+        $activeUsersCount = User::where('last_seen_at', '>=', now()->subMinutes(5))->count();
 
-        // Fetch voting data for Chart.js
-        $votingData = Vote::whereDate('created_at', $selectedDate)
-            ->selectRaw('EXTRACT(HOUR FROM created_at) as hour, count(*) as aggregate')
-            ->groupBy('hour')
-            ->orderBy('hour', 'ASC')
-            ->get();
+        // 2. Chart Logic: Prepare data for the last 7 days
+        // This fixes the "Undefined variable $dates" error
+        $dates = [];
+        $votes = [];
+        $usersData = [];
+        $pollsData = [];
 
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i)->format('Y-m-d');
+            $dates[] = now()->subDays($i)->format('M d'); // e.g., "May 07"
+
+            $votes[] = Vote::whereDate('created_at', $date)->count();
+            $usersData[] = User::whereDate('created_at', $date)->count();
+            $pollsData[] = Poll::whereDate('created_at', $date)->count();
+        }
+
+        // 3. User Management Table Logic (with Search)
         $search = $request->input('search');
-        // Search users by name or email
         $users = User::where(function($query) use ($search) {
             if ($search) {
                 $query->where('name', 'like', "%{$search}%")
@@ -35,20 +48,22 @@ class AdminController extends Controller
             }
         })->latest()->paginate(10)->withQueryString();
 
-        $totalUsers = User::count();
-        $totalVotes = Vote::count();
-        $totalPolls = Poll::count();
-        $activeUsersCount = User::where('last_seen_at', '>=', now()->subMinutes(5))->count();
-
+        // 4. Return view with all required variables
         return view('admin.dashboard', compact(
-            'totalUsers', 'totalVotes', 'totalPolls',
-            'activeUsersCount', 'votingData', 'users', 'selectedDate'
+            'totalUsers', 
+            'totalVotes', 
+            'totalPolls', 
+            'activeUsersCount', 
+            'users', 
+            'dates', 
+            'votes', 
+            'usersData', 
+            'pollsData'
         ));
     }
 
     /**
      * Show a specific user's profile and their polls.
-     * This fixes the "Call to undefined method showUser" error.
      */
     public function showUser(User $user)
     {
@@ -58,7 +73,7 @@ class AdminController extends Controller
 
     /**
      * Toggle a user's ban status.
-     * Rule: Sub-Admins cannot ban Admins.
+     * Rule: Sub-Admins cannot modify Admin accounts.
      */
     public function toggleStatus(User $user)
     {
@@ -79,11 +94,8 @@ class AdminController extends Controller
     }
 
     /**
-     * Update a user's role (Promote/Demote).
-     * Rules: 
-     * 1. Sub-Admins can only promote User to Sub-Admin.
-     * 2. Sub-Admins cannot demote anyone.
-     * 3. Sub-Admins cannot touch Admin roles.
+     * Update a user's role.
+     * Includes restrictions for Sub-Admins to prevent demotions or admin-level changes.
      */
     public function updateRole(Request $request, User $user)
     {
@@ -94,7 +106,6 @@ class AdminController extends Controller
             return back()->with('error', 'You cannot change your own role.');
         }
 
-        // Sub-Admin restriction logic
         if ($currentUser->role === 'sub_admin') {
             if ($user->role === 'admin' || $request->role === 'admin') {
                 return back()->with('error', 'Unauthorized: Only Admins can manage Admin roles.');
@@ -147,7 +158,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Toggle whether a poll is active or disabled.
+     * Toggle whether a poll is active or hidden.
      */
     public function togglePollStatus(Poll $poll)
     {
