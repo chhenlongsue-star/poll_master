@@ -70,10 +70,4 @@
         </a>
     </div>
 
-    <div class="mt-8 text-center">
-        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-            Don't have an account? 
-            <a href="{{ route('register') }}" class="text-indigo-600 dark:text-indigo-400 hover:underline ml-1">Join the community</a>
-        </p>
-    </div>
 </x-guest-layout>
