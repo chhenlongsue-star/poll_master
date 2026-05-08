@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" x-data="{ dark: localStorage.getItem('dark') === 'true' }" :class="{ 'dark': dark }">
-
+<html lang="en" x-data="{ dark: localStorage.getItem('dark') === 'true', sidebarOpen: false }" :class="{ 'dark': dark }">
 <head>
     <meta charset="UTF-8">
     <title>PollMaster</title>

@@ -23,7 +23,7 @@
                                 <a href="{{ url('/dashboard') }}" class="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-indigo-600 transition">Dashboard</a>
                             @else
                                 <a href="{{ route('login') }}" class="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-indigo-600 transition">Log in</a>
-                                <a href="{{ route('register') }}" class="bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition shadow-lg shadow-indigo-500/20">Sign Up</a>
+                                {{-- <a href="{{ route('register') }}" class="bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition shadow-lg shadow-indigo-500/20">Sign Up</a> --}}
                             @endauth
                         @endif
                     </div>

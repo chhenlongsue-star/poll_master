@@ -22,9 +22,13 @@
 
                 {{-- Profile Picture --}}
                 <div class="relative group">
-                    <img src="{{ Auth::user()->avatar }}" 
-                         class="h-9 w-9 rounded-full border-2 border-indigo-500 shadow-sm transition group-hover:scale-105"
-                         onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=6366f1&color=fff'">
+                    <a href="{{ route('profile.edit') }}" class="block">
+                        <img src="{{ Auth::user()->avatar }}" 
+                            class="h-9 w-9 rounded-full border-2 border-indigo-500 shadow-sm transition group-hover:scale-110 group-hover:shadow-indigo-500/50"
+                            onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=6366f1&color=fff'">
+        
+                        <div class="absolute inset-0 rounded-full border-2 border-transparent group-hover:border-indigo-400 transition-all duration-300"></div>
+                    </a>
                 </div>
 
                 {{-- Logout Button --}}

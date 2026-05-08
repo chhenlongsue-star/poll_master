@@ -1,49 +1,91 @@
-<aside class="w-64 bg-white dark:bg-gray-800 border-r dark:border-gray-700">
-
-<div class="p-6 text-xl font-bold text-indigo-600">
-PollMaster
+{{-- 1. Overlay / Backdrop --}}
+<div x-show="sidebarOpen" 
+     x-transition:enter="transition ease-out duration-300"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-200"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     @click="sidebarOpen = false"
+     class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-40">
 </div>
 
-<nav class="space-y-2 px-4">
+{{-- 2. Sidebar Panel --}}
+<aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+       class="fixed inset-y-0 left-0 w-72 bg-white dark:bg-gray-800 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out border-r dark:border-gray-700 overflow-y-auto flex flex-col">
+    
+    {{-- Brand Section --}}
+    <div class="p-8 flex items-center justify-between">
+        <h2 class="font-black text-2xl italic tracking-tighter text-indigo-600 dark:text-indigo-400">
+            POLL MASTER
+        </h2>
+        <button @click="sidebarOpen = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
+            <i class="fas fa-times text-xl"></i>
+        </button>
+    </div>
 
-<a href="{{ route('dashboard') }}"
-class="block px-4 py-2 rounded hover:bg-indigo-100 dark:hover:bg-gray-700">
-Dashboard
-</a>
+    {{-- Navigation --}}
+    <nav class="flex-1 px-4 space-y-1.5">
+        
+        {{-- USER SECTION --}}
+        <p class="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] px-4 mb-2">Main Menu</p>
+        
+        <a href="{{ route('dashboard') }}" 
+           class="flex items-center gap-4 px-4 py-3 rounded-2xl transition-all {{ request()->routeIs('dashboard') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-gray-500 dark:text-gray-400 hover:bg-indigo-50 dark:hover:bg-gray-700/50 hover:text-indigo-600' }}">
+            <i class="fas fa-th-large w-5 text-sm"></i>
+            <span class="text-xs font-black uppercase tracking-widest">Dashboard</span>
+        </a>
 
-<a href="{{ route('polls.create') }}"
-class="block px-4 py-2 rounded hover:bg-indigo-100 dark:hover:bg-gray-700">
-Create Poll
-</a>
+        <a href="{{ route('polls.create') }}" 
+           class="flex items-center gap-4 px-4 py-3 rounded-2xl transition-all {{ request()->routeIs('polls.create') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-gray-500 dark:text-gray-400 hover:bg-indigo-50 dark:hover:bg-gray-700/50 hover:text-indigo-600' }}">
+            <i class="fas fa-plus-circle w-5 text-sm"></i>
+            <span class="text-xs font-black uppercase tracking-widest">Create Poll</span>
+        </a>
 
-<a href="{{ route('polls.my-content') }}"
-class="block px-4 py-2 rounded hover:bg-indigo-100 dark:hover:bg-gray-700">
-My Content
-</a>
+        <a href="{{ route('polls.my-content') }}" 
+           class="flex items-center gap-4 px-4 py-3 rounded-2xl transition-all {{ request()->routeIs('polls.my-content') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-gray-500 dark:text-gray-400 hover:bg-indigo-50 dark:hover:bg-gray-700/50 hover:text-indigo-600' }}">
+            <i class="fas fa-folder w-5 text-sm"></i>
+            <span class="text-xs font-black uppercase tracking-widest">My Content</span>
+        </a>
 
-@if(in_array(auth()->user()->role,['admin','sub_admin']))
+        {{-- ADMIN SECTION --}}
+        @if(in_array(auth()->user()->role,['admin','sub_admin']))
+            <div class="pt-6 pb-2">
+                <div class="h-px bg-gray-100 dark:bg-gray-700 mx-4"></div>
+            </div>
+            
+            <p class="text-[9px] font-black text-red-500 dark:text-red-400 uppercase tracking-[0.2em] px-4 mb-2">Management</p>
 
-<p class="text-xs text-gray-400 px-4 mt-4">ADMIN</p>
+            <a href="{{ route('admin.dashboard') }}" 
+               class="flex items-center gap-4 px-4 py-3 rounded-2xl transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-red-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/10 hover:text-red-600' }}">
+                <i class="fas fa-shield-alt w-5 text-sm"></i>
+                <span class="text-xs font-black uppercase tracking-widest">Admin Panel</span>
+            </a>
 
-<a href="{{ route('admin.dashboard') }}"
-class="block px-4 py-2 rounded hover:bg-indigo-100 dark:hover:bg-gray-700">
-Admin Dashboard
-</a>
+            <a href="{{ route('admin.polls.index') }}" 
+               class="flex items-center gap-4 px-4 py-3 rounded-2xl transition-all {{ request()->routeIs('admin.polls.index') ? 'bg-red-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/10 hover:text-red-600' }}">
+                <i class="fas fa-tasks w-5 text-sm"></i>
+                <span class="text-xs font-black uppercase tracking-widest">Manage Polls</span>
+            </a>
 
-<a href="{{ route('admin.polls.index') }}"
-class="block px-4 py-2 rounded hover:bg-indigo-100 dark:hover:bg-gray-700">
-Manage Polls
-</a>
+            @if(auth()->user()->role === 'admin')
+                <a href="{{ route('admin.categories.index') }}" 
+                   class="flex items-center gap-4 px-4 py-3 rounded-2xl transition-all {{ request()->routeIs('admin.categories.index') ? 'bg-red-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/10 hover:text-red-600' }}">
+                    <i class="fas fa-tags w-5 text-sm"></i>
+                    <span class="text-xs font-black uppercase tracking-widest">Categories</span>
+                </a>
+            @endif
+        @endif
+    </nav>
 
-@if(auth()->user()->role === 'admin')
-<a href="{{ route('admin.categories.index') }}"
-class="block px-4 py-2 rounded hover:bg-indigo-100 dark:hover:bg-gray-700">
-Categories
-</a>
-@endif
-
-@endif
-
-</nav>
-
+    {{-- Bottom Footer Section --}}
+    <div class="p-6 border-t dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30">
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:text-red-500 transition-all font-black text-[10px] uppercase tracking-[0.2em]">
+                <i class="fas fa-sign-out-alt"></i>
+                Terminate Session
+            </button>
+        </form>
+    </div>
 </aside>
