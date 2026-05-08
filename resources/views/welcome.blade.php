@@ -46,7 +46,7 @@
                                 Create interactive polls in seconds and visualize the data as it happens. Built for communities that value clear, spam-free feedback.
                             </p>
                             <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                                <a href="{{ route('register') }}" class="px-10 py-5 bg-indigo-600 text-white text-xs font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-indigo-700 transition shadow-2xl shadow-indigo-500/40 transform hover:-translate-y-1">
+                                <a href="{{ route('login') }}" class="px-10 py-5 bg-indigo-600 text-white text-xs font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-indigo-700 transition shadow-2xl shadow-indigo-500/40 transform hover:-translate-y-1">
                                     Get Started
                                 </a>
                                 <a href="#trending" class="px-10 py-5 bg-gray-100 dark:bg-gray-900 text-gray-600 dark:text-gray-300 text-xs font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-gray-200 dark:hover:bg-gray-800 transition">
