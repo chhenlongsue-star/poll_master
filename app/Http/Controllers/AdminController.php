@@ -25,19 +25,42 @@ class AdminController extends Controller
 
         // 2. Chart Logic: Prepare data for the last 7 days
         // This fixes the "Undefined variable $dates" error
-        $dates = [];
-        $votes = [];
-        $usersData = [];
-        $pollsData = [];
+        $range = request('range');
 
-        for ($i = 6; $i >= 0; $i--) {
-            $date = now()->subDays($i)->format('Y-m-d');
-            $dates[] = now()->subDays($i)->format('M d'); // e.g., "May 07"
+if ($range && str_contains($range, ' to ')) {
 
-            $votes[] = Vote::whereDate('created_at', $date)->count();
-            $usersData[] = User::whereDate('created_at', $date)->count();
-            $pollsData[] = Poll::whereDate('created_at', $date)->count();
-        }
+    [$start, $end] = explode(' to ', $range);
+
+    $startDate = \Carbon\Carbon::parse($start)->startOfDay();
+    $endDate = \Carbon\Carbon::parse($end)->endOfDay();
+
+} else {
+
+    $startDate = now()->subDays(6)->startOfDay();
+    $endDate = now()->endOfDay();
+}
+
+$dates = [];
+$votes = [];
+$usersData = [];
+$pollsData = [];
+
+$currentDate = $startDate->copy();
+
+while ($currentDate <= $endDate) {
+
+    $formattedDate = $currentDate->format('Y-m-d');
+
+    $dates[] = $currentDate->format('M d');
+
+    $votes[] = Vote::whereDate('created_at', $formattedDate)->count();
+
+    $usersData[] = User::whereDate('created_at', $formattedDate)->count();
+
+    $pollsData[] = Poll::whereDate('created_at', $formattedDate)->count();
+
+    $currentDate->addDay();
+}
 
         // 3. User Management Table Logic (with Search)
         $search = $request->input('search');
@@ -58,7 +81,8 @@ class AdminController extends Controller
             'dates', 
             'votes', 
             'usersData', 
-            'pollsData'
+            'pollsData',
+            'range'
         ));
     }
 

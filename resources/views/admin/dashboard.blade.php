@@ -166,101 +166,200 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
-        // Init Date Picker
-        flatpickr("#range", {
-            mode: "range",
-            dateFormat: "Y-m-d",
-            theme: document.documentElement.classList.contains('dark') ? "dark" : "light"
-        });
+    // =========================
+    // DATE RANGE PICKER
+    // =========================
+    flatpickr("#range", {
+        mode: "range",
+        dateFormat: "Y-m-d",
+        defaultDate: "{{ request('range') }}",
+    });
 
-        // Chart Theme Detection
-        function getChartColors() {
-            const isDark = document.documentElement.classList.contains('dark');
-            return {
-                text: isDark ? '#9CA3AF' : '#6B7280',
-                grid: isDark ? '#374151' : '#F3F4F6',
-            };
-        }
+    // =========================
+    // CHART COLORS
+    // =========================
+    function getChartColors() {
+        const isDark = document.documentElement.classList.contains('dark');
 
-        const colors = getChartColors();
-        const ctx = document.getElementById('chart').getContext('2d');
-        
-        const myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: {!! json_encode($dates) !!},
-                datasets: [
-                    { 
-                        label: 'Votes', 
-                        data: {!! json_encode($votes) !!}, 
-                        borderColor: '#6366F1', 
-                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 3,
-                        pointRadius: 4,
-                        pointHoverRadius: 6
-                    },
-                    { 
-                        label: 'Users', 
-                        data: {!! json_encode($usersData) !!}, 
-                        borderColor: '#10B981', 
-                        tension: 0.4,
-                        borderWidth: 2,
-                        pointRadius: 0
-                    },
-                    { 
-                        label: 'Polls', 
-                        data: {!! json_encode($pollsData) !!}, 
-                        borderColor: '#F59E0B', 
-                        tension: 0.4,
-                        borderWidth: 2,
-                        pointRadius: 0
-                    }
-                ]
+        return {
+            text: isDark ? '#9CA3AF' : '#6B7280',
+            grid: isDark ? '#374151' : '#E5E7EB',
+            votes: '#6366F1',
+            users: '#10B981',
+            polls: '#F59E0B'
+        };
+    }
+
+    const colors = getChartColors();
+
+    // =========================
+    // CHART DATA
+    // =========================
+    const labels = {!! json_encode($dates) !!};
+    const votesData = {!! json_encode($votes) !!};
+    const usersData = {!! json_encode($usersData) !!};
+    const pollsData = {!! json_encode($pollsData) !!};
+
+    // =========================
+    // CHART
+    // =========================
+    const ctx = document.getElementById('chart').getContext('2d');
+
+    const gradientVotes = ctx.createLinearGradient(0, 0, 0, 350);
+    gradientVotes.addColorStop(0, 'rgba(99,102,241,0.35)');
+    gradientVotes.addColorStop(1, 'rgba(99,102,241,0)');
+
+    const myChart = new Chart(ctx, {
+        type: 'line',
+
+        data: {
+            labels: labels,
+
+            datasets: [
+                {
+                    label: 'Votes',
+                    data: votesData,
+                    borderColor: colors.votes,
+                    backgroundColor: gradientVotes,
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: colors.votes,
+                    pointBorderWidth: 2,
+                    pointBorderColor: '#fff',
+                },
+
+                {
+                    label: 'Users',
+                    data: usersData,
+                    borderColor: colors.users,
+                    backgroundColor: 'transparent',
+                    tension: 0.4,
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    pointBackgroundColor: colors.users,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                },
+
+                {
+                    label: 'Polls',
+                    data: pollsData,
+                    borderColor: colors.polls,
+                    backgroundColor: 'transparent',
+                    tension: 0.4,
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    pointBackgroundColor: colors.polls,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                }
+            ]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { color: colors.text, font: { weight: 'bold', size: 10 }, usePointStyle: true }
-                    },
-                    tooltip: {
-                        backgroundColor: '#1F2937',
-                        titleFont: { size: 12, weight: 'bold' },
-                        padding: 12,
-                        cornerRadius: 10
+
+            plugins: {
+                legend: {
+                    position: 'bottom',
+
+                    labels: {
+                        color: colors.text,
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        padding: 20,
+                        font: {
+                            size: 11,
+                            weight: 'bold'
+                        }
                     }
                 },
-                scales: {
-                    x: {
-                        ticks: { color: colors.text, font: { size: 10 } },
-                        grid: { display: false }
+
+                tooltip: {
+                    backgroundColor: '#111827',
+                    titleColor: '#ffffff',
+                    bodyColor: '#E5E7EB',
+                    borderColor: '#374151',
+                    borderWidth: 1,
+                    padding: 14,
+                    cornerRadius: 12,
+                    displayColors: true,
+                }
+            },
+
+            scales: {
+                x: {
+                    ticks: {
+                        color: colors.text,
+                        font: {
+                            size: 10,
+                            weight: 'bold'
+                        }
                     },
-                    y: {
-                        beginAtZero: true,
-                        ticks: { color: colors.text, font: { size: 10 }, stepSize: 1 },
-                        grid: { color: colors.grid }
+
+                    grid: {
+                        display: false
+                    }
+                },
+
+                y: {
+                    beginAtZero: true,
+
+                    ticks: {
+                        color: colors.text,
+                        stepSize: 1,
+
+                        font: {
+                            size: 10,
+                            weight: 'bold'
+                        }
+                    },
+
+                    grid: {
+                        color: colors.grid,
+                        drawBorder: false
                     }
                 }
             }
-        });
-
-        // PDF Export Fix
-        function downloadPDF() {
-            const container = document.querySelector(".max-w-7xl");
-            html2canvas(container, {
-                backgroundColor: document.documentElement.classList.contains('dark') ? '#111827' : '#f3f4f6',
-                scale: 2
-            }).then(canvas => {
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('l', 'mm', 'a4');
-                const imgData = canvas.toDataURL("image/png");
-                pdf.addImage(imgData, "PNG", 10, 10, 277, 190);
-                pdf.save("pollmaster-admin-report.pdf");
-            });
         }
-    </script>
+    });
+
+    // =========================
+    // EXPORT PDF
+    // =========================
+    function downloadPDF() {
+
+        const container = document.querySelector(".max-w-7xl");
+
+        html2canvas(container, {
+            backgroundColor: document.documentElement.classList.contains('dark')
+                ? '#111827'
+                : '#f3f4f6',
+
+            scale: 2
+        }).then(canvas => {
+
+            const { jsPDF } = window.jspdf;
+
+            const pdf = new jsPDF('l', 'mm', 'a4');
+
+            const imgData = canvas.toDataURL('image/png');
+
+            pdf.addImage(imgData, 'PNG', 10, 10, 277, 190);
+
+            pdf.save('pollmaster-admin-report.pdf');
+        });
+    }
+</script>
 </x-app-layout>
