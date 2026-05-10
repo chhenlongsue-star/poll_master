@@ -185,24 +185,40 @@ class PollController extends Controller
     }
 
     public function myContent(Request $request)
-    {
-        $user = auth()->user();
-        $tab = $request->get('tab', 'my-polls');
+{
+    $user = auth()->user();
+    $tab = $request->get('tab', 'my-polls');
 
-        if ($tab === 'vote-history') {
-            $content = Poll::whereHas('votes', function($q) use ($user) {
-                $q->where('user_id', $user->id);
-            })->with(['user', 'category'])->withCount('votes')->latest()->paginate(12);
-        } else {
-            $content = Poll::where('user_id', $user->id)
-                ->with(['category'])
-                ->withCount('votes')
-                ->latest()
-                ->paginate(12);
-        }
+    // 1. Handle Vote History (Polls you participated in)
+    if ($tab === 'vote-history') {
+        $content = Poll::whereHas('votes', function($q) use ($user) {
+            $q->where('user_id', $user->id);
+        })->with(['user', 'category'])
+          ->withCount('votes')
+          ->latest()
+          ->paginate(12);
 
-        return view('polls.my-content', compact('content', 'tab'));
+    // 2. Handle Drafts (Your polls where is_active is false)
+    } elseif ($tab === 'drafts') {
+        $content = Poll::where('user_id', $user->id)
+            ->where('is_active', false) // Only hidden polls
+            ->with(['category'])
+            ->withCount('votes')
+            ->latest()
+            ->paginate(12);
+
+    // 3. Handle Created Polls (Your polls where is_active is true)
+    } else {
+        $content = Poll::where('user_id', $user->id)
+            ->where('is_active', true) // Only live polls
+            ->with(['category'])
+            ->withCount('votes')
+            ->latest()
+            ->paginate(12);
     }
+
+    return view('polls.my-content', compact('content', 'tab'));
+}
 
     public function toggleFavourite(Poll $poll)
     {
