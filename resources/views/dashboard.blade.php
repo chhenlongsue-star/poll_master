@@ -50,7 +50,7 @@
             {{-- TAB NAVIGATION --}}
             @php $currentTab = request('tab','all'); @endphp
             <div class="flex gap-6 sm:gap-8 border-b dark:border-gray-800 pb-1 overflow-x-auto no-scrollbar">
-                @foreach(['all' => 'All', 'official' => 'Official', 'trending' => '🔥 Trending', 'community' => 'Community', 'favorites' => '⭐ Favorites'] as $key => $label)
+                @foreach(['all' => 'All', 'official' => 'Official', 'trending' => 'Trending', 'community' => 'Community', 'favorites' => 'Favorites'] as $key => $label)
                     <a href="?tab={{ $key }}" 
                        class="whitespace-nowrap pb-3 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] transition-all {{ $currentTab == $key ? 'text-indigo-600 border-b-4 border-indigo-600' : 'text-gray-400 hover:text-gray-600 border-b-4 border-transparent' }}">
                         {{ $label }}
