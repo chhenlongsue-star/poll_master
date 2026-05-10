@@ -57,6 +57,8 @@ Route::middleware(['auth', 'role:admin,sub_admin'])->prefix('admin')->name('admi
     
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
     Route::get('/manage-polls', [AdminController::class, 'managePolls'])->name('polls.index');
+    Route::delete('/polls/{poll}', [AdminController::class, 'destroyPoll'])->name('polls.destroy');
+    
     
     Route::resource('categories', CategoryController::class);
 

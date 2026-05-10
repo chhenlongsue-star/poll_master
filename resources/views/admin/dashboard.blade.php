@@ -119,19 +119,25 @@
                                 </td>
 
                                 <td class="px-8 py-5 text-center whitespace-nowrap">
-                                    <form method="POST" action="{{ route('admin.users.update-role', $user) }}">
-                                        @csrf @method('PATCH')
-                                        <select name="role"
-                                                class="bg-gray-100 dark:bg-gray-700 border-none text-[10px] font-black uppercase tracking-widest rounded-lg px-4 py-1.5 dark:text-white focus:ring-2 focus:ring-indigo-500 cursor-pointer appearance-none shadow-sm"
-                                                onchange="this.form.submit()">
-                                            <option value="user" {{ $user->role == 'user' ? 'selected' : '' }}>User</option>
-                                            <option value="sub_admin" {{ $user->role == 'sub_admin' ? 'selected' : '' }}>Sub Admin</option>
-                                            @if(auth()->user()->role === 'admin')
-                                                <option value="admin" {{ $user->role == 'admin' ? 'selected' : '' }}>Admin</option>
-                                            @endif
-                                        </select>
-                                    </form>
-                                </td>
+    @if(auth()->user()->role === 'admin')
+        {{-- Full Admins see the interactive dropdown --}}
+        <form method="POST" action="{{ route('admin.users.update-role', $user) }}">
+            @csrf @method('PATCH')
+            <select name="role"
+                    class="bg-gray-100 dark:bg-gray-700 border-none text-[10px] font-black uppercase tracking-widest rounded-lg px-4 py-1.5 dark:text-white focus:ring-2 focus:ring-indigo-500 cursor-pointer appearance-none shadow-sm"
+                    onchange="this.form.submit()">
+                <option value="user" {{ $user->role == 'user' ? 'selected' : '' }}>User</option>
+                <option value="sub_admin" {{ $user->role == 'sub_admin' ? 'selected' : '' }}>Sub Admin</option>
+                <option value="admin" {{ $user->role == 'admin' ? 'selected' : '' }}>Admin</option>
+            </select>
+        </form>
+    @else
+        {{-- Sub-Admins see a static, non-editable badge --}}
+        <span class="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border border-transparent">
+            {{ str_replace('_', ' ', $user->role) }}
+        </span>
+    @endif
+</td>
 
                                 <td class="px-8 py-5 text-right whitespace-nowrap">
                                     @if(!(auth()->user()->role === 'sub_admin' && $user->role === 'admin'))

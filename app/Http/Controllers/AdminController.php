@@ -122,26 +122,43 @@ while ($currentDate <= $endDate) {
      * Includes restrictions for Sub-Admins to prevent demotions or admin-level changes.
      */
     public function updateRole(Request $request, User $user)
-    {
-        $currentUser = Auth::user();
-        $request->validate(['role' => 'required|in:user,sub_admin,admin']);
+{
+    $currentUser = Auth::user();
+    $request->validate(['role' => 'required|in:user,sub_admin,admin']);
 
-        if ($currentUser->id === $user->id) {
-            return back()->with('error', 'You cannot change your own role.');
-        }
-
-        if ($currentUser->role === 'sub_admin') {
-            if ($user->role === 'admin' || $request->role === 'admin') {
-                return back()->with('error', 'Unauthorized: Only Admins can manage Admin roles.');
-            }
-            if ($user->role === 'sub_admin' && $request->role === 'user') {
-                return back()->with('error', 'Sub-admins do not have permission to demote accounts.');
-            }
-        }
-
-        $user->update(['role' => $request->role]);
-        return back()->with('success', "Role updated successfully.");
+    if ($currentUser->id === $user->id) {
+        return back()->with('error', 'You cannot change your own role.');
     }
+
+    if ($currentUser->role === 'sub_admin') {
+        // Prevent Sub-Admins from touching Admin accounts or creating new Admins
+        if ($user->role === 'admin' || $request->role === 'admin') {
+            return back()->with('error', 'Unauthorized: Only Admins can manage Admin roles.');
+        }
+        // Prevent Sub-Admins from demoting other Sub-Admins
+        if ($user->role === 'sub_admin' && $request->role === 'user') {
+            return back()->with('error', 'Sub-admins do not have permission to demote accounts.');
+        }
+    }
+
+    $user->update(['role' => $request->role]);
+    return back()->with('success', "Role updated successfully.");
+}
+
+/**
+ * Permanently delete a poll.
+ */
+public function destroyPoll(Poll $poll)
+{
+    // Restrict deletion to full Admins only
+    if (Auth::user()->role !== 'admin') {
+        return back()->with('error', 'Unauthorized: Only full Admins can delete polls.');
+    }
+
+    $poll->delete(); // Ensure your Migration has ->onDelete('cascade') for votes
+    
+    return back()->with('success', 'Poll and all associated data deleted successfully.');
+}
 
     /**
      * Permanently delete a user.
@@ -191,4 +208,15 @@ while ($currentDate <= $endDate) {
 
         return back()->with('status', 'Poll status updated!');
     }
+
+    public function destroyPoll(Poll $poll)
+{
+    // Optional: Add security check if only full admins can delete
+    if (Auth::user()->role !== 'admin') {
+        return back()->with('error', 'Unauthorized: Only full Admins can delete polls.');
+    }
+
+    $poll->delete();
+    return back()->with('success', 'Poll and all associated data deleted successfully.');
+}
 }
