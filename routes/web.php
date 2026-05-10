@@ -31,6 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/my-content', [PollController::class, 'myContent'])->name('polls.my-content');
     Route::post('/polls/{poll}/favourite', [PollController::class, 'toggleFavourite'])->name('polls.favourite');
     Route::get('/about', function () {return view('about');})->name('about');
+    Route::patch('/polls/{poll}/toggle-status', [PollController::class, 'toggleStatus'])->name('polls.toggle-status');
 
     // Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

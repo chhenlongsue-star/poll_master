@@ -226,4 +226,21 @@ class PollController extends Controller
         $user->favouritePolls()->toggle($poll->id);
         return back();
     }
+
+    public function toggleStatus(Poll $poll)
+{
+    // Authorization check
+    if (auth()->id() !== $poll->user_id && !auth()->user()->isAdmin()) {
+        return back()->with('error', 'Unauthorized action.');
+    }
+
+    // Toggle the is_active boolean
+    $poll->update([
+        'is_active' => !$poll->is_active
+    ]);
+
+    $status = $poll->is_active ? 'published' : 'hidden';
+    
+    return back()->with('success', "Poll is now {$status}!");
+}
 }
