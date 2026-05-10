@@ -209,14 +209,4 @@ public function destroyPoll(Poll $poll)
         return back()->with('status', 'Poll status updated!');
     }
 
-    public function destroyPoll(Poll $poll)
-{
-    // Optional: Add security check if only full admins can delete
-    if (Auth::user()->role !== 'admin') {
-        return back()->with('error', 'Unauthorized: Only full Admins can delete polls.');
-    }
-
-    $poll->delete();
-    return back()->with('success', 'Poll and all associated data deleted successfully.');
-}
 }
