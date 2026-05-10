@@ -32,28 +32,28 @@
         
         <a href="{{ route('dashboard') }}" 
            class="flex items-center gap-4 px-4 py-3 rounded-2xl transition-all {{ request()->routeIs('dashboard') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-gray-500 dark:text-gray-400 hover:bg-indigo-50 dark:hover:bg-gray-700/50 hover:text-indigo-600' }}">
-            <i class="fas fa-th-large w-5 text-sm"></i>
+            {{-- <i class="fas fa-th-large w-5 text-sm"></i> --}}
             <span class="text-xs font-black uppercase tracking-widest">Dashboard</span>
         </a>
 
         <a href="{{ route('polls.create') }}" 
            class="flex items-center gap-4 px-4 py-3 rounded-2xl transition-all {{ request()->routeIs('polls.create') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-gray-500 dark:text-gray-400 hover:bg-indigo-50 dark:hover:bg-gray-700/50 hover:text-indigo-600' }}">
-            <i class="fas fa-plus-circle w-5 text-sm"></i>
+            {{-- <i class="fas fa-plus-circle w-5 text-sm"></i> --}}
             <span class="text-xs font-black uppercase tracking-widest">Create Poll</span>
         </a>
 
         <a href="{{ route('polls.my-content') }}" 
            class="flex items-center gap-4 px-4 py-3 rounded-2xl transition-all {{ request()->routeIs('polls.my-content') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-gray-500 dark:text-gray-400 hover:bg-indigo-50 dark:hover:bg-gray-700/50 hover:text-indigo-600' }}">
-            <i class="fas fa-folder w-5 text-sm"></i>
+            {{-- <i class="fas fa-folder w-5 text-sm"></i> --}}
             <span class="text-xs font-black uppercase tracking-widest">My Content</span>
         </a>
 
         <a href="{{ route('about') }}" 
            class="flex items-center gap-4 px-4 py-3 rounded-2xl transition-all {{ request()->routeIs('about') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-gray-500 dark:text-gray-400 hover:bg-indigo-50 dark:hover:bg-gray-700/50 hover:text-indigo-600' }}">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {{-- <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 16V12M12 8H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" 
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            </svg> --}}
             <span class="text-xs font-black uppercase tracking-widest">About Us</span>
         </a>
 
@@ -68,20 +68,20 @@
 
             <a href="{{ route('admin.dashboard') }}" 
                class="flex items-center gap-4 px-4 py-3 rounded-2xl transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-red-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/10 hover:text-red-600' }}">
-                <i class="fas fa-shield-alt w-5 text-sm"></i>
+                {{-- <i class="fas fa-shield-alt w-5 text-sm"></i> --}}
                 <span class="text-xs font-black uppercase tracking-widest">Admin Panel</span>
             </a>
 
             <a href="{{ route('admin.polls.index') }}" 
                class="flex items-center gap-4 px-4 py-3 rounded-2xl transition-all {{ request()->routeIs('admin.polls.index') ? 'bg-red-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/10 hover:text-red-600' }}">
-                <i class="fas fa-tasks w-5 text-sm"></i>
+                {{-- <i class="fas fa-tasks w-5 text-sm"></i> --}}
                 <span class="text-xs font-black uppercase tracking-widest">Manage Polls</span>
             </a>
 
             @if(auth()->user()->role === 'admin')
                 <a href="{{ route('admin.categories.index') }}" 
                    class="flex items-center gap-4 px-4 py-3 rounded-2xl transition-all {{ request()->routeIs('admin.categories.index') ? 'bg-red-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/10 hover:text-red-600' }}">
-                    <i class="fas fa-tags w-5 text-sm"></i>
+                    {{-- <i class="fas fa-tags w-5 text-sm"></i> --}}
                     <span class="text-xs font-black uppercase tracking-widest">Categories</span>
                 </a>
             @endif
