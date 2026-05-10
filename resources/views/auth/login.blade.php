@@ -39,15 +39,15 @@
                 </span>
             </label>
 
-            @if (Route::has('password.request'))
+            {{-- @if (Route::has('password.request'))
                 <a class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest hover:underline" href="{{ route('password.request') }}">
                     {{ __('Forgot?') }}
                 </a>
-            @endif
+            @endif --}}
         </div>
 
         <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-indigo-500/20 transition-all transform hover:-translate-y-1">
-            {{ __('Authenticate') }}
+            {{ __('Login') }}
         </button>
     </form>
 

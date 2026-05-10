@@ -67,10 +67,10 @@
                                 Filter
                             </button>
                         </form>
-                        <button onclick="downloadPDF()"
+                        {{-- <button onclick="downloadPDF()"
                                 class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 text-[10px] font-black rounded-xl transition uppercase tracking-widest">
                             Export PDF
-                        </button>
+                        </button> --}}
                     </div>
                 </div>
 
@@ -141,7 +141,7 @@
                                                 {{ $user->is_banned 
                                                     ? 'text-emerald-500 border-emerald-500 hover:bg-emerald-500 hover:text-white shadow-lg shadow-emerald-500/20' 
                                                     : 'text-orange-500 border-orange-500 hover:bg-orange-500 hover:text-white shadow-lg shadow-orange-500/20' }}">
-                                                {{ $user->is_banned ? 'Unrestrict' : 'Restrict Access' }}
+                                                {{ $user->is_banned ? 'Unban' : 'Ban' }}
                                             </button>
                                         </form>
                                     @endif

@@ -32,7 +32,7 @@
                                 </span>
                                 @if($user->is_banned)
                                     <span class="px-4 py-1 bg-red-500 text-white text-[10px] font-black rounded-lg uppercase tracking-widest shadow-lg shadow-red-500/20">
-                                        RESTRICTED
+                                        Banned Account
                                     </span>
                                 @else
                                     <span class="px-4 py-1 bg-emerald-500/10 text-emerald-500 text-[10px] font-black rounded-lg uppercase tracking-widest border border-emerald-500/20">
@@ -50,7 +50,7 @@
                                 {{ $user->is_banned 
                                     ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20' 
                                     : 'bg-orange-500 hover:bg-orange-600 text-white shadow-orange-500/20' }}">
-                                {{ $user->is_banned ? 'Restore Access' : 'Restrict Account' }}
+                                {{ $user->is_banned ? 'Unban' : 'Ban' }}
                             </button>
                         </form>
                         
