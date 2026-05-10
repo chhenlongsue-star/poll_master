@@ -91,7 +91,8 @@
                                 </td>
 
                                 <td class="px-8 py-5 text-right">
-                                    <div class="flex justify-end gap-3">
+                                    <div class="flex justify-end items-center gap-4">
+                                        {{-- Toggle Visibility --}}
                                         <form action="{{ route('admin.polls.toggle-active', $poll) }}" method="POST">
                                             @csrf @method('PATCH')
                                             <button type="submit" 
@@ -99,7 +100,25 @@
                                                     {{ $poll->is_active 
                                                         ? 'text-orange-500 border-orange-500 hover:bg-orange-500 hover:text-white' 
                                                         : 'text-indigo-500 border-indigo-500 hover:bg-indigo-500 hover:text-white' }}">
-                                                {{ $poll->is_active ? 'Hide Poll' : 'Publish' }}
+                                                {{ $poll->is_active ? 'Hide' : 'Publish' }}
+                                            </button>
+                                        </form>
+
+                                        {{-- View Button --}}
+                                        <a href="{{ route('polls.show', $poll) }}" class="text-gray-400 hover:text-indigo-600 transition" title="View Poll">
+                                            <i class="fas fa-eye text-sm"></i>
+                                        </a>
+
+                                        {{-- Edit Button --}}
+                                        <a href="{{ route('polls.edit', $poll) }}" class="text-gray-400 hover:text-indigo-600 transition" title="Edit Poll">
+                                            <i class="fas fa-pen-nib text-sm"></i>
+                                        </a>
+
+                                        {{-- Delete Button --}}
+                                        <form action="{{ route('admin.polls.destroy', $poll) }}" method="POST" onsubmit="return confirm('ADMIN ACTION: Permanently delete this poll and all associated votes?');">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="text-gray-400 hover:text-red-500 transition" title="Delete Poll">
+                                                <i class="fas fa-trash-alt text-sm"></i>
                                             </button>
                                         </form>
                                     </div>
