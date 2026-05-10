@@ -30,6 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [PollController::class, 'index'])->name('dashboard');
     Route::get('/my-content', [PollController::class, 'myContent'])->name('polls.my-content');
     Route::post('/polls/{poll}/favourite', [PollController::class, 'toggleFavourite'])->name('polls.favourite');
+    Route::get('/about', function () {return view('about');})->name('about');
 
     // Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

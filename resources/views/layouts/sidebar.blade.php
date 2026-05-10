@@ -48,6 +48,16 @@
             <span class="text-xs font-black uppercase tracking-widest">My Content</span>
         </a>
 
+        <a href="{{ route('about') }}" 
+            class="flex items-center px-4 py-3 mt-2 transition-colors duration-300 transform rounded-lg 
+                {{ request()->routeIs('about') ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200' }}">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 16V12M12 8H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" 
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="mx-4 font-black uppercase tracking-widest text-[10px]">About Us</span>
+        </a>
+
         {{-- ADMIN SECTION --}}
         @if(in_array(auth()->user()->role,['admin','sub_admin']))
             <div class="pt-6 pb-2">
