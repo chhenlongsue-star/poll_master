@@ -5,7 +5,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PollController;
 use App\Http\Controllers\CategoryController; 
 use App\Http\Controllers\Auth\GoogleAuthController as GoogleAuth; 
-// ADDED THIS IMPORT:
+use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController; 
 use App\Models\Poll;
 use Illuminate\Support\Facades\Route;
