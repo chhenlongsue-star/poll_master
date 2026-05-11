@@ -91,17 +91,16 @@
                                 </td>
 
                                 <td class="px-8 py-5 text-right">
-    <div class="flex justify-end items-center gap-3">
+    <td class="px-8 py-5 text-right">
+    <div class="flex justify-end items-center gap-4"> {{-- Increased gap for visibility --}}
         
-        {{-- 1. Toggle Visibility (Only if NOT banned) --}}
+        {{-- 1. Visibility Toggle --}}
         @if(!$poll->is_banned)
-            <form action="{{ route('admin.polls.toggle-active', $poll) }}" method="POST">
+            <form action="{{ route('admin.polls.toggle-active', $poll) }}" method="POST" class="inline">
                 @csrf @method('PATCH')
                 <button type="submit" 
                         class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border transition
-                        {{ $poll->is_active 
-                            ? 'text-orange-500 border-orange-500 hover:bg-orange-500 hover:text-white' 
-                            : 'text-indigo-500 border-indigo-500 hover:bg-indigo-500 hover:text-white' }}">
+                        {{ $poll->is_active ? 'text-orange-500 border-orange-500 hover:bg-orange-500 hover:text-white' : 'text-indigo-500 border-indigo-500 hover:bg-indigo-500 hover:text-white' }}">
                     {{ $poll->is_active ? 'Hide' : 'Publish' }}
                 </button>
             </form>
@@ -111,26 +110,19 @@
             </span>
         @endif
 
-        {{-- 2. Ban/Unban Action (Admin Only) --}}
-        <form action="{{ route('admin.polls.toggle-ban', $poll) }}" method="POST">
+        {{-- 2. Ban Button --}}
+        <form action="{{ route('admin.polls.toggle-ban', $poll) }}" method="POST" class="inline">
             @csrf @method('PATCH')
-            <button type="submit" 
-                    title="{{ $poll->is_banned ? 'Unban Poll' : 'Ban Poll' }}"
-                    class="transition {{ $poll->is_banned ? 'text-red-600 hover:text-red-800' : 'text-gray-400 hover:text-red-500' }}">
-                <i class="fas fa-gavel text-sm"></i>
+            <button type="submit" title="Toggle Ban" class="hover:scale-110 transition-transform">
+                <i class="fas fa-gavel text-sm {{ $poll->is_banned ? 'text-red-600' : 'text-gray-400 hover:text-red-500' }}"></i>
             </button>
         </form>
 
-        {{-- 3. View Button --}}
-        <a href="{{ route('polls.show', $poll) }}" class="text-gray-400 hover:text-indigo-600 transition" title="View Poll">
-            <i class="fas fa-eye text-sm"></i>
-        </a>
-
-        {{-- 4. Delete Button --}}
-        <form action="{{ route('admin.polls.destroy', $poll) }}" method="POST" onsubmit="return confirm('PERMANENT DELETE: Are you sure?');">
+        {{-- 3. Delete Button --}}
+        <form action="{{ route('admin.polls.destroy', $poll) }}" method="POST" class="inline" onsubmit="return confirm('Delete permanently?');">
             @csrf @method('DELETE')
-            <button type="submit" class="text-gray-400 hover:text-red-500 transition" title="Delete Poll">
-                <i class="fas fa-trash-alt text-sm"></i>
+            <button type="submit" class="hover:scale-110 transition-transform">
+                <i class="fas fa-trash-alt text-sm text-gray-400 hover:text-red-600"></i>
             </button>
         </form>
     </div>
