@@ -209,4 +209,19 @@ public function destroyPoll(Poll $poll)
         return back()->with('status', 'Poll status updated!');
     }
 
+    public function togglePollBan(Poll $poll)
+{
+    $poll->is_banned = !$poll->is_banned;
+    
+    // Logic: If a poll is banned, we should also force it to be hidden (inactive)
+    if ($poll->is_banned) {
+        $poll->is_active = false;
+    }
+    
+    $poll->save();
+
+    $status = $poll->is_banned ? 'Poll has been BANNED.' : 'Poll ban has been lifted.';
+    return back()->with('success', $status);
+}
+
 }

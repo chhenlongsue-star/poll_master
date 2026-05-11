@@ -227,14 +227,20 @@ class PollController extends Controller
         return back();
     }
 
-    public function toggleStatus(Poll $poll)
+   public function toggleStatus(Poll $poll)
 {
-    // Authorization check
+    // 1. Banned Check (Strict Enforcement)
+    // If the poll is banned, nobody (not even the owner) can toggle visibility.
+    if ($poll->is_banned) {
+        return back()->with('error', 'This poll has been banned and cannot be modified.');
+    }
+
+    // 2. Authorization Check
     if (auth()->id() !== $poll->user_id && !auth()->user()->isAdmin()) {
         return back()->with('error', 'Unauthorized action.');
     }
 
-    // Toggle the is_active boolean
+    // 3. Toggle the is_active boolean
     $poll->update([
         'is_active' => !$poll->is_active
     ]);

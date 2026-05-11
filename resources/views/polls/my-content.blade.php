@@ -53,22 +53,30 @@
                                     </span>
 
                                     {{-- UPDATED STATUS BADGE/BUTTON --}}
-                                    <form action="{{ route('polls.toggle-status', $poll) }}" method="POST">
-                                        @csrf
-                                        @method('PATCH')
-                                        
-                                        @if(!$poll->is_active)
-                                            <button type="submit" title="Click to Publish" 
-                                                    class="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-500/20 hover:bg-amber-100 dark:hover:bg-amber-500/20 transition-all active:scale-95">
-                                                <i class="fas fa-eye-slash mr-1"></i> Hidden
-                                            </button>
-                                        @else
-                                            <button type="submit" title="Click to Hide" 
-                                                    class="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-500/20 hover:bg-green-100 dark:hover:bg-green-500/20 transition-all active:scale-95">
-                                                <i class="fas fa-eye mr-1"></i> Public
-                                            </button>
-                                        @endif
-                                    </form>
+                                    @if($poll->is_banned)
+    {{-- Banned State: Static badge, no interaction possible --}}
+    <div class="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-500/20 inline-flex items-center cursor-not-allowed">
+        <i class="fas fa-ban mr-1"></i> Banned
+    </div>
+@else
+    {{-- Normal State: User can toggle between Hidden and Public --}}
+    <form action="{{ route('polls.toggle-status', $poll) }}" method="POST">
+        @csrf
+        @method('PATCH')
+        
+        @if(!$poll->is_active)
+            <button type="submit" title="Click to Publish" 
+                    class="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-500/20 hover:bg-amber-100 dark:hover:bg-amber-500/20 transition-all active:scale-95">
+                <i class="fas fa-eye-slash mr-1"></i> Hidden
+            </button>
+        @else
+            <button type="submit" title="Click to Hide" 
+                    class="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-500/20 hover:bg-green-100 dark:hover:bg-green-500/20 transition-all active:scale-95">
+                <i class="fas fa-eye mr-1"></i> Public
+            </button>
+        @endif
+    </form>
+@endif
                                 </div>
                                 
                                 <form action="{{ route('polls.favourite', $poll) }}" method="POST">
