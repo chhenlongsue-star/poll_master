@@ -22,7 +22,7 @@
                             @auth
                                 <a href="{{ url('/dashboard') }}" class="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-indigo-600 transition">Dashboard</a>
                             @else
-                                <a href="{{ route('auth.google') }}" class="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-indigo-600 transition">Log in</a>
+                                <a href="{{ route('google.login') }}" class="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-indigo-600 transition">Log in</a>
                                 {{-- <a href="{{ route('register') }}" class="bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition shadow-lg shadow-indigo-500/20">Sign Up</a> --}}
                             @endauth
                         @endif
@@ -46,7 +46,7 @@
                                 Create interactive polls in seconds and visualize the data as it happens. Built for communities that value clear, spam-free feedback.
                             </p>
                             <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                                <a href="{{ route('auth.google') }}" class="px-10 py-5 bg-indigo-600 text-white text-xs font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-indigo-700 transition shadow-2xl shadow-indigo-500/40 transform hover:-translate-y-1">
+                                <a href="{{ route('google.login') }}" class="px-10 py-5 bg-indigo-600 text-white text-xs font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-indigo-700 transition shadow-2xl shadow-indigo-500/40 transform hover:-translate-y-1">
                                     Get Started
                                 </a>
                                 <a href="#trending" class="px-10 py-5 bg-gray-100 dark:bg-gray-900 text-gray-600 dark:text-gray-300 text-xs font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-gray-200 dark:hover:bg-gray-800 transition">
@@ -88,7 +88,7 @@
                             <h2 class="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">Trending Now</h2>
                             <p class="text-[10px] text-indigo-600 dark:text-indigo-400 font-black uppercase tracking-[0.3em] mt-2">Active decisions in the community</p>
                         </div>
-                        <a href="{{ route('auth.google') }}" class="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-indigo-600 transition">View All <i class="fas fa-arrow-right ml-1"></i></a>
+                        <a href="{{ route('google.login') }}" class="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-indigo-600 transition">View All <i class="fas fa-arrow-right ml-1"></i></a>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -116,7 +116,7 @@
                                     </div>
                                 </div>
                                 <div class="px-8 py-5 bg-gray-50 dark:bg-gray-900/80 border-t border-gray-100 dark:border-gray-800">
-                                    <a href="{{ route('auth.google') }}" class="block text-center w-full text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
+                                    <a href="{{ route('google.login') }}" class="block text-center w-full text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
                                         Join Controversy →
                                     </a>
                                 </div>
