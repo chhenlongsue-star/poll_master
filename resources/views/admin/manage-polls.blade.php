@@ -90,8 +90,8 @@
                                     </div>
                                 </td>
 
+                                
                                 <td class="px-8 py-5 text-right">
-    <td class="px-8 py-5 text-right">
     <div class="flex justify-end items-center gap-4"> {{-- Increased gap for visibility --}}
         
         {{-- 1. Visibility Toggle --}}
