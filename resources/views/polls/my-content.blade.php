@@ -1,4 +1,5 @@
 <x-app-layout>
+    {{-- ADDED: FontAwesome CDN to ensure icons render --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <div class="py-12 bg-gray-100 dark:bg-gray-950 min-h-screen transition-colors duration-300">
@@ -21,7 +22,6 @@
                         <i class="fas fa-folder-open mr-2"></i> Created Polls
                     </a>
 
-                    {{-- NEW DRAFTS TAB --}}
                     <a href="{{ route('polls.my-content', ['tab' => 'drafts']) }}" 
                        class="{{ $tab == 'drafts' 
                             ? 'border-amber-500 text-amber-500' 
@@ -52,31 +52,28 @@
                                         {{ $poll->category->name ?? 'General' }}
                                     </span>
 
-                                    {{-- UPDATED STATUS BADGE/BUTTON --}}
                                     @if($poll->is_banned)
-    {{-- Banned State: Static badge, no interaction possible --}}
-    <div class="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-500/20 inline-flex items-center cursor-not-allowed">
-        <i class="fas fa-ban mr-1"></i> Banned
-    </div>
-@else
-    {{-- Normal State: User can toggle between Hidden and Public --}}
-    <form action="{{ route('polls.toggle-status', $poll) }}" method="POST">
-        @csrf
-        @method('PATCH')
-        
-        @if(!$poll->is_active)
-            <button type="submit" title="Click to Publish" 
-                    class="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-500/20 hover:bg-amber-100 dark:hover:bg-amber-500/20 transition-all active:scale-95">
-                <i class="fas fa-eye-slash mr-1"></i> Hidden
-            </button>
-        @else
-            <button type="submit" title="Click to Hide" 
-                    class="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-500/20 hover:bg-green-100 dark:hover:bg-green-500/20 transition-all active:scale-95">
-                <i class="fas fa-eye mr-1"></i> Public
-            </button>
-        @endif
-    </form>
-@endif
+                                        <div class="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-500/20 inline-flex items-center cursor-not-allowed">
+                                            <i class="fas fa-ban mr-1"></i> Banned
+                                        </div>
+                                    @else
+                                        <form action="{{ route('polls.toggle-status', $poll) }}" method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            
+                                            @if(!$poll->is_active)
+                                                <button type="submit" title="Click to Publish" 
+                                                        class="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-500/20 hover:bg-amber-100 dark:hover:bg-amber-500/20 transition-all active:scale-95">
+                                                    <i class="fas fa-eye-slash mr-1"></i> Hidden
+                                                </button>
+                                            @else
+                                                <button type="submit" title="Click to Hide" 
+                                                        class="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-500/20 hover:bg-green-100 dark:hover:bg-green-500/20 transition-all active:scale-95">
+                                                    <i class="fas fa-eye mr-1"></i> Public
+                                                </button>
+                                            @endif
+                                        </form>
+                                    @endif
                                 </div>
                                 
                                 <form action="{{ route('polls.favourite', $poll) }}" method="POST">
@@ -105,8 +102,20 @@
                                 Details <i class="fas fa-chevron-right ml-2 text-[8px]"></i>
                             </a>
 
-                            @if(($tab == 'my-polls' || $tab == 'drafts') && (Auth::id() === $poll->user_id || Auth::user()->isAdmin()))
+                            {{-- UPDATED: Combined conditions to ensure Admins/Sub-Admins see actions --}}
+                            @if(($tab == 'my-polls' || $tab == 'drafts') && (Auth::id() === $poll->user_id || Auth::user()->role === 'admin' || Auth::user()->role === 'sub_admin'))
                                 <div class="flex items-center gap-4">
+                                    
+                                    {{-- Admin Ban Toggle (Gavel Icon) --}}
+                                    @if(Auth::user()->role === 'admin' || Auth::user()->role === 'sub_admin')
+                                        <form action="{{ route('admin.polls.toggle-ban', $poll) }}" method="POST" class="inline">
+                                            @csrf @method('PATCH')
+                                            <button type="submit" title="{{ $poll->is_banned ? 'Unban' : 'Ban' }}" class="transition hover:scale-110">
+                                                <i class="fas fa-gavel text-sm {{ $poll->is_banned ? 'text-red-600' : 'text-gray-400 hover:text-red-500' }}"></i>
+                                            </button>
+                                        </form>
+                                    @endif
+
                                     <a href="{{ route('polls.edit', $poll) }}" class="text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition" title="Edit Poll">
                                         <i class="fas fa-pen-nib text-sm"></i>
                                     </a>
