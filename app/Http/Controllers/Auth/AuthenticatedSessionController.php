@@ -14,10 +14,10 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): View
-    {
-        return redirect()->route('google.login');
-    }
+    public function create(): \Illuminate\Http\RedirectResponse 
+{
+    return redirect()->route('google.login');
+}
 
     /**
      * Handle an incoming authentication request.
