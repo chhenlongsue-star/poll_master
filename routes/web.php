@@ -25,6 +25,7 @@ Route::get('/', function () {
 // 2. Google Authentication Routes
 Route::get('auth/google', [GoogleAuth::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('auth/google/callback', [GoogleAuth::class, 'handleGoogleCallback']);
+Route::get('auth/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('google.login');
 
 // 3. Authenticated User Routes (Regular Users)
 Route::middleware(['auth', 'verified'])->group(function () {
